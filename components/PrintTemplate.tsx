@@ -4,167 +4,128 @@ import { ConfiguredItem } from '../types';
 
 interface PrintTemplateProps {
   items: ConfiguredItem[];
-  grandTotal: number;
+  subTotal: number;
+  discountAmount: number;
+  finalTotal: number;
 }
 
-export const PrintTemplate: React.FC<PrintTemplateProps> = ({ items, grandTotal }) => {
-  const today = new Date().toLocaleDateString('vi-VN');
-  const quoteNumber = `SG-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000) + 1000}`;
-
+export const PrintTemplate: React.FC<PrintTemplateProps> = ({ 
+  items, 
+  subTotal, 
+  discountAmount, 
+  finalTotal 
+}) => {
   return (
-    <div className="bg-white text-black leading-relaxed w-full h-full" id="print-section">
-      {/* Container for A4 sizing - Visualized in Preview, Enforced in Print */}
-      <div className="p-8 sm:p-10 max-w-[210mm] mx-auto min-h-[297mm] flex flex-col bg-white shadow-sm print:shadow-none print:p-0 print:m-0">
-        
-        {/* Header Section */}
-        <div className="flex justify-between items-start border-b-2 border-red-700 pb-6 mb-8">
-          <div className="flex gap-6">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
-              <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Logo Somo Gold" className="w-full h-full object-contain" />
-            </div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-lg sm:text-xl font-black uppercase text-red-700 tracking-tight mb-2">Công ty Cổ Phần Somo Gold</h1>
-              <div className="text-[10px] sm:text-[11px] space-y-0.5 text-slate-700">
-                <p><span className="font-bold">Địa chỉ:</span> 29 Nguyễn Khắc Nhu, phường Cầu Ông Lãnh, TP. Hồ Chí Minh</p>
-                <p><span className="font-bold">Liên hệ:</span> 039.915.3674 (Mr. Quốc Khách)</p>
-                <p><span className="font-bold">Email:</span> khachhq@somogold.vn</p>
-                <p><span className="font-bold">Website:</span> somogold.vn</p>
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <h2 className="text-base sm:text-lg font-black uppercase text-slate-900 leading-none">Báo Giá Quà Tết</h2>
-            <p className="text-red-600 font-bold text-xs sm:text-sm tracking-widest">MÃ ĐÁO 2026</p>
-            <div className="mt-4 inline-block text-[10px] text-slate-500 font-mono">
-              <p>Mã số: {quoteNumber}</p>
-              <p>Ngày lập: {today}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Client Info Section */}
-        <div className="mb-8 grid grid-cols-2 gap-8 text-[11px]">
+    <div id="print-section" className="bg-white text-slate-900 w-[210mm] min-h-[297mm] p-[10mm] md:p-[15mm] mx-auto relative flex flex-col">
+      {/* 1. Header */}
+      <div className="flex justify-between items-start border-b-2 border-red-700 pb-6 mb-8">
+        <div className="flex items-center gap-4">
+          <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Somo Gold" className="h-20 w-auto object-contain" />
           <div>
-            <h3 className="font-bold uppercase text-slate-400 border-b border-slate-200 mb-2 pb-1 text-[9px]">Người gửi</h3>
-            <p className="font-bold text-sm">Quốc Khách</p>
-            <p className="text-slate-600 italic">Bộ phận Kinh doanh - Somo Gold</p>
-          </div>
-          <div>
-            <h3 className="font-bold uppercase text-slate-400 border-b border-slate-200 mb-2 pb-1 text-[9px]">Ghi chú thanh toán</h3>
-            <p className="text-slate-700 leading-relaxed italic">Giá báo dưới đây đã bao gồm thuế VAT.</p>
+            <h1 className="text-3xl font-black text-red-700 uppercase tracking-tighter leading-none mb-1">Somo Gold</h1>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Cộng hưởng cùng thịnh vượng</p>
           </div>
         </div>
-
-        {/* Main Table */}
-        <div className="flex-grow">
-          <table className="w-full text-left border-collapse border border-slate-300">
-            <thead>
-              <tr className="bg-slate-50 text-[10px] uppercase font-bold text-slate-700">
-                <th className="p-2 sm:p-3 border border-slate-300 text-center w-10">STT</th>
-                <th className="p-2 sm:p-3 border border-slate-300">Chi tiết sản phẩm & Thành phần</th>
-                <th className="p-2 sm:p-3 border border-slate-300 text-center w-14">SL</th>
-                <th className="p-2 sm:p-3 border border-slate-300 text-right w-24 sm:w-32">Đơn giá</th>
-                <th className="p-2 sm:p-3 border border-slate-300 text-right w-24 sm:w-32">Thành tiền</th>
-              </tr>
-            </thead>
-            <tbody className="text-[11px]">
-              {items.map((item, idx) => (
-                <tr key={idx} className="border-b border-slate-300 hover:bg-slate-50/50">
-                  <td className="p-2 sm:p-3 border border-slate-300 text-center align-top font-mono text-slate-400">{idx + 1}</td>
-                  <td className="p-2 sm:p-3 border border-slate-300 align-top">
-                    <p className="font-black text-slate-900 uppercase mb-1.5">{item.packageName}</p>
-                    <div className="grid grid-cols-1 gap-1 pl-3 border-l-2 border-red-100">
-                      {item.details.map((d, i) => (
-                        <div key={i} className="flex justify-between text-[10px] text-slate-600 italic">
-                          <span>• {d.product.name}</span>
-                          <span className="text-slate-400 font-mono">x{d.quantity} {d.product.unit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-2 sm:p-3 border border-slate-300 text-center align-top font-bold text-slate-900">{item.quantity}</td>
-                  <td className="p-2 sm:p-3 border border-slate-300 text-right align-top font-mono text-slate-700">{item.unitPrice.toLocaleString('vi-VN')}đ</td>
-                  <td className="p-2 sm:p-3 border border-slate-300 text-right align-top font-bold text-red-700">{(item.unitPrice * item.quantity).toLocaleString('vi-VN')}đ</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="text-right">
+          <h2 className="text-2xl font-bold uppercase text-slate-800 mb-2">Báo Giá Tết 2026</h2>
+          <p className="text-sm text-slate-500">Ngày tạo: {new Date().toLocaleDateString('vi-VN')}</p>
         </div>
-
-        {/* Summary Section */}
-        <div className="mt-8 pt-8 border-t-2 border-slate-100 flex justify-end">
-          <div className="w-full max-w-xs space-y-3">
-            <div className="flex justify-between text-xs text-slate-600">
-              <span>Tổng giá trị hàng hóa:</span>
-              <span className="font-mono">{grandTotal.toLocaleString('vi-VN')}đ</span>
-            </div>
-            <div className="flex justify-between text-xs text-slate-600">
-              <span>Thuế GTGT (VAT 10%):</span>
-              <span className="italic text-[10px]">Đã bao gồm</span>
-            </div>
-            <div className="flex justify-between text-xs text-slate-600 pb-2 border-b border-slate-200">
-              <span>Chiết khấu (nếu có):</span>
-              <span className="font-mono">0đ</span>
-            </div>
-            <div className="flex justify-between items-end pt-2">
-              <span className="text-xs font-black uppercase text-slate-900">Tổng cộng thanh toán:</span>
-              <div className="text-right">
-                <span className="text-xl font-black text-red-700 leading-none">{grandTotal.toLocaleString('vi-VN')}đ</span>
-                <p className="text-[9px] text-slate-400 italic mt-1">(Bằng chữ: {numberToWords(grandTotal)} đồng)</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Note */}
-        <div className="mt-12 text-center text-[10px] text-slate-400 border-t border-dashed pt-4">
-          <p className="font-bold text-slate-600 mb-1">CẢM ƠN QUÝ KHÁCH ĐÃ TIN TƯỞNG VÀ LỰA CHỌN SOMO GOLD</p>
-          <p>Báo giá có giá trị trong vòng 15 ngày kể từ ngày ban hành. Mọi chi tiết xin liên hệ Hotline 039.915.3674.</p>
-        </div>
-
       </div>
 
-      <style>{`
-        @media print {
-          @page {
-            size: A4;
-            margin: 0;
-          }
-          body {
-            -webkit-print-color-adjust: exact;
-          }
-          /* Hide everything in body */
-          body * {
-            visibility: hidden;
-          }
-          /* Show print section */
-          #print-section, #print-section * {
-            visibility: visible;
-          }
-          #print-section {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            background: white;
-          }
-          /* Hide non-print elements inside the modal wrapper if any */
-          .no-print {
-            display: none !important;
-          }
-        }
-        #print-section {
-          font-family: "Times New Roman", Times, serif;
-        }
-      `}</style>
+      {/* 2. Customer Info Placeholder */}
+      <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-100">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="block font-bold text-slate-500 uppercase text-xs mb-1">Đơn vị gửi báo giá:</span>
+            <p className="font-bold text-slate-900">CÔNG TY CỔ PHẦN SOMO GOLD</p>
+            <p className="text-slate-600">29 Nguyễn Khắc Nhu, P. Cô Giang, Q.1, TP.HCM</p>
+          </div>
+          <div>
+            <span className="block font-bold text-slate-500 uppercase text-xs mb-1">Kính gửi:</span>
+            <p className="font-bold text-slate-900">Quý Khách Hàng / Đối Tác</p>
+            <p className="text-slate-600">...........................................................................</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Table */}
+      <div className="flex-grow">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-red-700 text-white uppercase text-xs">
+              <th className="py-3 px-4 text-left rounded-tl-lg">STT</th>
+              <th className="py-3 px-4 text-left">Tên Phần Quà & Chi Tiết</th>
+              <th className="py-3 px-4 text-center">SL</th>
+              <th className="py-3 px-4 text-right">Đơn giá</th>
+              <th className="py-3 px-4 text-right rounded-tr-lg">Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200">
+            {items.map((item, index) => (
+              <tr key={item.instanceId} className="group">
+                <td className="py-4 px-4 text-center font-bold text-slate-400 align-top">{index + 1}</td>
+                <td className="py-4 px-4 align-top">
+                  <p className="font-bold text-red-700 text-base mb-1">{item.packageName}</p>
+                  <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside bg-slate-50 p-2 rounded">
+                    {item.details.map((detail, idx) => (
+                      <li key={idx}>
+                        {detail.product.name} <span className="text-slate-400">x{detail.quantity}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+                <td className="py-4 px-4 text-center font-bold align-top">{item.quantity}</td>
+                <td className="py-4 px-4 text-right font-medium align-top">
+                  {item.unitPrice.toLocaleString('vi-VN')}đ
+                </td>
+                <td className="py-4 px-4 text-right font-bold text-slate-900 align-top">
+                  {(item.unitPrice * item.quantity).toLocaleString('vi-VN')}đ
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 4. Footer Totals */}
+      <div className="mt-8 border-t-2 border-slate-200 pt-6">
+        <div className="flex flex-col items-end gap-2 w-full max-w-xs ml-auto">
+          {/* Tạm tính */}
+          <div className="flex justify-between w-full text-slate-600 text-sm">
+            <span>Tạm tính:</span>
+            <span className="font-medium">{subTotal.toLocaleString('vi-VN')}đ</span>
+          </div>
+
+          {/* Chiết khấu (Chỉ hiện nếu > 0) */}
+          {discountAmount > 0 && (
+            <div className="flex justify-between w-full text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">
+              <span>Chiết khấu:</span>
+              <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
+            </div>
+          )}
+
+          {/* Tổng cộng */}
+          <div className="flex justify-between w-full text-red-700 text-xl font-black mt-2 pt-2 border-t border-slate-200">
+            <span>TỔNG CỘNG:</span>
+            <span>{finalTotal.toLocaleString('vi-VN')}đ</span>
+          </div>
+          <p className="text-[10px] text-slate-400 italic text-right w-full mt-1">
+            (Đã bao gồm thuế VAT nếu có)
+          </p>
+        </div>
+      </div>
+
+      {/* 5. Footer Signature */}
+      <div className="mt-16 grid grid-cols-2 gap-8 text-center text-sm pb-8">
+        <div>
+          <p className="font-bold uppercase text-slate-500 mb-16">Người lập phiếu</p>
+          <p className="font-bold">Quốc Khách</p>
+        </div>
+        <div>
+          <p className="font-bold uppercase text-slate-500 mb-16">Xác nhận của khách hàng</p>
+          <p className="text-slate-400 italic">(Ký và ghi rõ họ tên)</p>
+        </div>
+      </div>
     </div>
   );
 };
-
-// Helper function
-function numberToWords(num: number): string {
-  if (num === 0) return 'Không';
-  return num.toLocaleString('vi-VN'); 
-}
