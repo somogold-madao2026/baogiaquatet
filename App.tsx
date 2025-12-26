@@ -151,22 +151,15 @@ const App: React.FC = () => {
   // --- LOGIC TÍNH TỔNG & CHIẾT KHẤU ---
   const grandTotal = quoteItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   
-  // Tính toán mức chiết khấu tối đa cho phép dựa trên các gói trong giỏ hàng
   const maxAllowedDiscount = useMemo(() => {
     if (quoteItems.length === 0) return 0;
-    
-    // Tìm mức chiết khấu thấp nhất trong các gói đang chọn (An toàn cho người bán)
-    // Nếu có bất kỳ gói nào chỉ cho phép 15%, thì cả đơn chỉ được max 15%.
-    // Chỉ khi TOÀN BỘ là gói 20% (Tấn Lộc) thì mới được max 20%.
     const hasRestrictedPackage = quoteItems.some(item => {
       const pkg = GIFT_PACKAGES.find(p => p.id === item.packageId);
       return (pkg?.maxDiscount || 0) < 20;
     });
-
     return hasRestrictedPackage ? 15 : 20;
   }, [quoteItems]);
 
-  // Tự động điều chỉnh nếu nhập quá giới hạn
   useEffect(() => {
     if (discountRate > maxAllowedDiscount) {
       setDiscountRate(maxAllowedDiscount);
@@ -308,4 +301,171 @@ const App: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3 w-full
+                    <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                      {editingId && (
+                        <button 
+                          onClick={cancelEdit}
+                          className="flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-bold uppercase tracking-wider text-slate-500 border border-slate-200 hover:bg-slate-50 transition-all text-[10px] sm:text-xs"
+                        >
+                          Hủy
+                        </button>
+                      )}
+                      <button 
+                        onClick={saveToQuote}
+                        disabled={!draftCalculation?.isComplete || draft.quantity < 1}
+                        className={`flex-[2] sm:flex-none px-6 sm:px-12 py-3 sm:py-4 rounded-xl font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center leading-none ${
+                          (draftCalculation?.isComplete && draft.quantity >= 1)
+                          ? (editingId ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200' : 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-200')
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-80'
+                        } scale-100 hover:scale-[1.02]`}
+                      >
+                        <span className="text-[10px] sm:text-xs mb-1">{editingId ? 'Lưu thay đổi' : 'Thêm vào báo giá'}</span>
+                        <span className="text-[8px] sm:text-[10px] opacity-70">({(draftCalculation?.unitPrice || 0).toLocaleString('vi-VN')}đ/phần)</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {!selectedPackage && (
+              <div className="h-48 sm:h-64 flex flex-col items-center justify-center border-2 border-dashed border-red-400/30 rounded-2xl bg-white/10 text-white backdrop-blur-sm">
+                <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🧧</div>
+                <p className="text-sm font-medium text-center px-4 opacity-80 tracking-wide">Vui lòng chọn một mẫu quà tặng để bắt đầu</p>
+              </div>
+            )}
+          </div>
+
+          <div className="xl:col-span-4">
+            <div className="sticky top-20 sm:top-28 space-y-6">
+              <QuoteList 
+                items={quoteItems} 
+                onRemove={removeFromQuote} 
+                onEdit={handleEdit}
+                onUpdateQuantity={updateQuoteItemQuantity}
+                grandTotal={grandTotal}
+                onExport={handleExportPdf}
+              />
+              
+              {quoteItems.length > 0 && (
+                <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+                  <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-100">
+                    <label className="text-sm font-bold text-slate-700">
+                      Chiết khấu (Max {maxAllowedDiscount}%):
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        min="0"
+                        max={maxAllowedDiscount}
+                        value={discountRate}
+                        onChange={(e) => {
+                          let val = Number(e.target.value);
+                          if (val < 0) val = 0;
+                          if (val > maxAllowedDiscount) val = maxAllowedDiscount;
+                          setDiscountRate(val);
+                        }}
+                        className="w-20 px-3 py-1.5 rounded-lg border border-slate-300 text-right font-bold text-slate-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                      />
+                      <span className="absolute right-8 top-1.5 text-slate-400 text-xs pointer-events-none">%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-slate-500">
+                      <span>Tạm tính:</span>
+                      <span>{grandTotal.toLocaleString('vi-VN')}đ</span>
+                    </div>
+                    {discountRate > 0 && (
+                      <div className="flex justify-between text-xs font-bold text-green-600">
+                        <span>Đã giảm ({discountRate}%):</span>
+                        <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base font-black text-red-700 pt-2 border-t border-slate-100">
+                      <span>Thành tiền:</span>
+                      <span>{finalTotal.toLocaleString('vi-VN')}đ</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+
+        <footer className="bg-slate-900 text-white mt-auto border-t border-slate-800">
+          <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-4 flex-shrink-0">
+                 <div className="h-10 w-auto bg-white p-1 rounded shadow-sm">
+                    <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Somo Gold" className="h-full object-contain" />
+                 </div>
+                 <div>
+                    <h3 className="text-lg font-black uppercase tracking-tighter leading-none mb-0.5">Somo Gold</h3>
+                    <p className="text-red-500 font-bold uppercase tracking-widest text-[8px] italic">"Cộng hưởng cùng thịnh vượng"</p>
+                 </div>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Liên hệ:</span>
+                  <p className="text-xs font-bold text-slate-200">Quốc Khách</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Số điện thoại:</span>
+                  <a href="tel:0399153674" className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors">039.915.3674</a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Website:</span>
+                  <span className="text-xs text-slate-400 font-medium">somogold.vn</span>
+                </div>
+              </div>
+
+              <div className="px-3 py-1.5 bg-slate-800/40 rounded-lg border border-slate-800/60 max-w-sm lg:max-w-xs">
+                  <p className="text-[9px] text-slate-400 leading-tight italic">
+                    <span className="text-red-500 font-bold uppercase not-italic">Lưu ý:</span> Nền tảng chỉ được phép sử dụng để hỗ trợ nội bộ, tuyệt đối KHÔNG áp dụng cho khách hàng sử dụng trực tiếp.
+                  </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-800/50 flex flex-col sm:flex-row justify-between items-center gap-2 opacity-60">
+              <p className="text-[8px] text-slate-500 font-medium uppercase tracking-widest">© 2025 Somo Gold Corp. All rights reserved.</p>
+              <div className="flex gap-4 text-[8px] text-slate-500 font-bold uppercase">
+                 <span className="hover:text-slate-300 cursor-help transition-colors">Bảo mật</span>
+                 <span className="hover:text-slate-300 cursor-help transition-colors">Sử dụng nội bộ</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+
+        {quoteItems.length > 0 && (
+          <div className="xl:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 shadow-2xl z-50">
+            <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
+              <div className="min-w-0">
+                <p className="text-[8px] uppercase text-slate-400 font-bold leading-none mb-1">Thanh toán ({quoteItems.reduce((s, i) => s + i.quantity, 0)} phần)</p>
+                <p className="text-lg font-black text-red-600 leading-none">{finalTotal.toLocaleString('vi-VN')}đ</p>
+              </div>
+              <button 
+                onClick={handleExportPdf}
+                className="bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase shadow-lg shadow-red-200 whitespace-nowrap active:scale-95 transition-transform"
+              >
+                Xuất báo giá
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <PdfPreviewModal 
+        isOpen={showPdfPreview} 
+        onClose={() => setShowPdfPreview(false)} 
+        items={quoteItems} 
+        subTotal={grandTotal}
+        discountAmount={discountAmount}
+        finalTotal={finalTotal} 
+      />
+    </>
+  );
+};
+
+export default App;
