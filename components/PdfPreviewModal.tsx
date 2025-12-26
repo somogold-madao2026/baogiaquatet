@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PrintTemplate } from './PrintTemplate';
 import { ConfiguredItem } from '../types';
@@ -7,10 +6,19 @@ interface PdfPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   items: ConfiguredItem[];
-  grandTotal: number;
+  subTotal: number;       // Tổng tiền hàng (Chưa giảm)
+  discountAmount: number; // Tiền được giảm
+  finalTotal: number;     // Tiền khách phải trả
 }
 
-export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({ isOpen, onClose, items, grandTotal }) => {
+export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  items, 
+  subTotal,
+  discountAmount,
+  finalTotal 
+}) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   if (!isOpen) return null;
@@ -21,7 +29,6 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({ isOpen, onClos
 
     setIsGenerating(true);
 
-    // Cấu hình cho html2pdf
     const opt = {
       margin: 0,
       filename: `Bao-Gia-SomoGold-${new Date().getTime()}.pdf`,
@@ -35,7 +42,6 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({ isOpen, onClos
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Gọi thư viện html2pdf từ window
     // @ts-ignore
     if (window.html2pdf) {
       // @ts-ignore
@@ -44,11 +50,9 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({ isOpen, onClos
       }).catch((err: any) => {
         console.error("PDF generation failed", err);
         setIsGenerating(false);
-        // Fallback to window.print if generation fails
         window.print();
       });
     } else {
-      // Fallback nếu thư viện chưa load
       window.print();
       setIsGenerating(false);
     }
@@ -95,10 +99,16 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({ isOpen, onClos
           </div>
         </div>
 
-        {/* Scrollable Preview Area */}
+        {/* Preview Area */}
         <div className="flex-1 overflow-auto p-4 sm:p-8 bg-slate-500/10 custom-scrollbar flex justify-center">
-            <div className="shadow-2xl print:shadow-none">
-                <PrintTemplate items={items} grandTotal={grandTotal} />
+            <div className="shadow-2xl print:shadow-none bg-white">
+                {/* Truyền dữ liệu chi tiết xuống Template */}
+                <PrintTemplate 
+                  items={items} 
+                  subTotal={subTotal}
+                  discountAmount={discountAmount}
+                  finalTotal={finalTotal} 
+                />
             </div>
         </div>
       </div>
