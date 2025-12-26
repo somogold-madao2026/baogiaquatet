@@ -1,4 +1,3 @@
-
 export enum Category {
   BOX = 'Hộp/Bao bì',
   WINE_PREMIUM = 'Cửu Long Mỹ Tửu',
@@ -31,7 +30,8 @@ export interface GiftPackage {
   tier: 'Cao cấp' | 'Trung cấp' | 'Tiêu chuẩn';
   description: string;
   rules: PackageRule[];
-  imageUrl: string; // Đường dẫn ảnh minh họa
+  imageUrl: string;
+  maxDiscount?: number; // <--- ĐÃ BỔ SUNG: Mức chiết khấu tối đa (%)
 }
 
 export interface ConfiguredItem {
