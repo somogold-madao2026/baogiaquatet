@@ -17,7 +17,6 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
 }) => {
   return (
     <div id="print-section" className="bg-white text-slate-900 w-[210mm] min-h-[297mm] p-[10mm] md:p-[15mm] mx-auto relative flex flex-col">
-      {/* 1. Header */}
       <div className="flex justify-between items-start border-b-2 border-red-700 pb-6 mb-8">
         <div className="flex items-center gap-4">
           <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Somo Gold" className="h-20 w-auto object-contain" />
@@ -32,23 +31,6 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
         </div>
       </div>
 
-      {/* 2. Customer Info Placeholder */}
-      <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-100">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="block font-bold text-slate-500 uppercase text-xs mb-1">Đơn vị gửi báo giá:</span>
-            <p className="font-bold text-slate-900">CÔNG TY CỔ PHẦN SOMO GOLD</p>
-            <p className="text-slate-600">29 Nguyễn Khắc Nhu, P. Cô Giang, Q.1, TP.HCM</p>
-          </div>
-          <div>
-            <span className="block font-bold text-slate-500 uppercase text-xs mb-1">Kính gửi:</span>
-            <p className="font-bold text-slate-900">Quý Khách Hàng / Đối Tác</p>
-            <p className="text-slate-600">...........................................................................</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Table */}
       <div className="flex-grow">
         <table className="w-full text-sm">
           <thead>
@@ -87,43 +69,22 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
         </table>
       </div>
 
-      {/* 4. Footer Totals */}
       <div className="mt-8 border-t-2 border-slate-200 pt-6">
         <div className="flex flex-col items-end gap-2 w-full max-w-xs ml-auto">
-          {/* Tạm tính */}
           <div className="flex justify-between w-full text-slate-600 text-sm">
             <span>Tạm tính:</span>
             <span className="font-medium">{subTotal.toLocaleString('vi-VN')}đ</span>
           </div>
-
-          {/* Chiết khấu (Chỉ hiện nếu > 0) */}
           {discountAmount > 0 && (
             <div className="flex justify-between w-full text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">
               <span>Chiết khấu:</span>
               <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
             </div>
           )}
-
-          {/* Tổng cộng */}
           <div className="flex justify-between w-full text-red-700 text-xl font-black mt-2 pt-2 border-t border-slate-200">
             <span>TỔNG CỘNG:</span>
             <span>{finalTotal.toLocaleString('vi-VN')}đ</span>
           </div>
-          <p className="text-[10px] text-slate-400 italic text-right w-full mt-1">
-            (Đã bao gồm thuế VAT nếu có)
-          </p>
-        </div>
-      </div>
-
-      {/* 5. Footer Signature */}
-      <div className="mt-16 grid grid-cols-2 gap-8 text-center text-sm pb-8">
-        <div>
-          <p className="font-bold uppercase text-slate-500 mb-16">Người lập phiếu</p>
-          <p className="font-bold">Quốc Khách</p>
-        </div>
-        <div>
-          <p className="font-bold uppercase text-slate-500 mb-16">Xác nhận của khách hàng</p>
-          <p className="text-slate-400 italic">(Ký và ghi rõ họ tên)</p>
         </div>
       </div>
     </div>
