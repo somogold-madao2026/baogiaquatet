@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PrintTemplate } from './PrintTemplate';
 import { ConfiguredItem } from '../types';
