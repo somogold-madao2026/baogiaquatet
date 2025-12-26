@@ -149,7 +149,6 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
-  // --- LOGIC TÍNH TỔNG & CHIẾT KHẤU ---
   const grandTotal = quoteItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   
   const maxAllowedDiscount = useMemo(() => {
@@ -173,17 +172,14 @@ const App: React.FC = () => {
 
   const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    // 1. Nếu xóa hết -> cho phép hiển thị rỗng, logic về 0
     if (val === '') {
       setDiscountInput('');
       setDiscountRate(0);
       return;
     }
-    // 2. Chặn nhập ký tự không phải số
     const numVal = parseInt(val, 10);
     if (isNaN(numVal)) return;
 
-    // 3. Giới hạn max
     let finalVal = numVal;
     if (finalVal > maxAllowedDiscount) finalVal = maxAllowedDiscount;
     if (finalVal < 0) finalVal = 0;
@@ -215,10 +211,8 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
-        </header>
-
-        <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 flex-grow">
-          {/* LEFT COLUMN: SELECTION */}
+        </header><main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 flex-grow">
+          {/* LEFT COLUMN */}
           <div className="xl:col-span-8 space-y-6 sm:space-y-8">
             <section className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-red-800/20 overflow-hidden">
               <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50">
@@ -360,11 +354,9 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* RIGHT COLUMN: LIST & TOTAL */}
+          {/* RIGHT COLUMN */}
           <div className="xl:col-span-4">
             <div className="sticky top-20 sm:top-28 space-y-6">
-              
-              {/* 1. DANH SÁCH BÁO GIÁ */}
               <QuoteList 
                 items={quoteItems} 
                 onRemove={removeFromQuote} 
@@ -376,7 +368,6 @@ const App: React.FC = () => {
               
               {quoteItems.length > 0 && (
                 <>
-                  {/* 2. KHU VỰC CHIẾT KHẤU (ĐẶT LÊN TRÊN) */}
                   <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-5">
                     <div className="flex justify-between items-center mb-4">
                        <label className="text-sm font-bold text-slate-700">
@@ -410,7 +401,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 3. KHU VỰC TỔNG KẾT & NÚT XUẤT (ĐẶT DƯỚI CÙNG - MÀU TỐI) */}
                   <div className="bg-slate-900 rounded-xl shadow-xl overflow-hidden text-white p-6">
                     <div className="flex flex-col items-center justify-center mb-6">
                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mb-1">TỔNG GIÁ TRỊ (SAU CÙNG)</p>
@@ -448,4 +438,64 @@ const App: React.FC = () => {
 
               <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] uppercase font-bold text-slate-500
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Liên hệ:</span>
+                  <p className="text-xs font-bold text-slate-200">Quốc Khách</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Số điện thoại:</span>
+                  <a href="tel:0399153674" className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors">039.915.3674</a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Website:</span>
+                  <span className="text-xs text-slate-400 font-medium">somogold.vn</span>
+                </div>
+              </div>
+
+              <div className="px-3 py-1.5 bg-slate-800/40 rounded-lg border border-slate-800/60 max-w-sm lg:max-w-xs">
+                  <p className="text-[9px] text-slate-400 leading-tight italic">
+                    <span className="text-red-500 font-bold uppercase not-italic">Lưu ý:</span> Nền tảng chỉ được phép sử dụng để hỗ trợ nội bộ, tuyệt đối KHÔNG áp dụng cho khách hàng sử dụng trực tiếp.
+                  </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-800/50 flex flex-col sm:flex-row justify-between items-center gap-2 opacity-60">
+              <p className="text-[8px] text-slate-500 font-medium uppercase tracking-widest">© 2025 Somo Gold Corp. All rights reserved.</p>
+              <div className="flex gap-4 text-[8px] text-slate-500 font-bold uppercase">
+                 <span className="hover:text-slate-300 cursor-help transition-colors">Bảo mật</span>
+                 <span className="hover:text-slate-300 cursor-help transition-colors">Sử dụng nội bộ</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+
+        {quoteItems.length > 0 && (
+          <div className="xl:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 shadow-2xl z-50">
+            <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
+              <div className="min-w-0">
+                <p className="text-[8px] uppercase text-slate-400 font-bold leading-none mb-1">Thanh toán ({quoteItems.reduce((s, i) => s + i.quantity, 0)} phần)</p>
+                <p className="text-lg font-black text-red-600 leading-none">{finalTotal.toLocaleString('vi-VN')}đ</p>
+              </div>
+              <button 
+                onClick={handleExportPdf}
+                className="bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase shadow-lg shadow-red-200 whitespace-nowrap active:scale-95 transition-transform"
+              >
+                Xuất báo giá
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <PdfPreviewModal 
+        isOpen={showPdfPreview} 
+        onClose={() => setShowPdfPreview(false)} 
+        items={quoteItems} 
+        subTotal={grandTotal}
+        discountAmount={discountAmount}
+        finalTotal={finalTotal} 
+      />
+    </>
+  );
+};
+
+export default App;
