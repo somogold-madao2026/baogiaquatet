@@ -1,3 +1,4 @@
+
 export enum Category {
   BOX = 'Hộp/Bao bì',
   WINE_PREMIUM = 'Cửu Long Mỹ Tửu',
@@ -31,7 +32,7 @@ export interface GiftPackage {
   description: string;
   rules: PackageRule[];
   imageUrl: string;
-  maxDiscount?: number; // <--- ĐÃ BỔ SUNG: Mức chiết khấu tối đa (%)
+  maxDiscount?: number; // QUAN TRỌNG: Dòng này giúp App.tsx không bị lỗi
 }
 
 export interface ConfiguredItem {
