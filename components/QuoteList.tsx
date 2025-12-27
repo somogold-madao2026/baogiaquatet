@@ -126,7 +126,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         {/* VAT */}
         <div className="flex justify-between items-center text-xs text-slate-400">
           <span>VAT (10%):</span>
-          <span>+ {props.vatAmount ? props.vatAmount.toLocaleString('vi-VN') : 0}đ</span> 
+          <span>+ {props.vatAmount ? vatAmount.toLocaleString('vi-VN') : 0}đ</span> 
           {/* Lưu ý: Bạn cần truyền vatAmount từ App.tsx vào props của QuoteList */}
         </div>
         
