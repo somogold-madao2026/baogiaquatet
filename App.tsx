@@ -133,7 +133,7 @@ const App: React.FC = () => {
       setEditingId(null);
     } else {
       const newItem: ConfiguredItem = {
-        instanceId: safeId, // Sử dụng ID an toàn
+        instanceId: new Date().getTime().toString() + Math.random().toString(36).substr(2, 9),
         packageId: selectedPackage.id,
         packageName: selectedPackage.name,
         items: { ...draft.items },
