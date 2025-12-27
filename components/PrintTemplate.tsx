@@ -19,11 +19,7 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
     <div id="print-section" className="bg-white text-slate-900 w-[210mm] min-h-[297mm] p-[10mm] md:p-[15mm] mx-auto relative flex flex-col">
       <div className="flex justify-between items-start border-b-2 border-red-700 pb-6 mb-8">
         <div className="flex items-center gap-4">
-          <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Somo Gold" className="h-20 w-auto object-contain" />
-          <div>
-            <h1 className="text-3xl font-black text-red-700 uppercase tracking-tighter leading-none mb-1">Somo Gold</h1>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Cộng hưởng cùng thịnh vượng</p>
-          </div>
+          <img src="https://i.ibb.co/MyS3gW1Y/logo.png" alt="Somo Gold" className="h-32 w-auto object-contain" />
         </div>
         <div className="text-right">
           <h2 className="text-2xl font-bold uppercase text-slate-800 mb-2">Báo Giá Tết 2026</h2>
@@ -31,7 +27,7 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
         </div>
       </div>
 
-      <div className="flex-grow">
+      <div className="mb-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-red-700 text-white uppercase text-xs">
@@ -44,7 +40,7 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-200">
             {items.map((item, index) => (
-              <tr key={item.instanceId} className="group">
+              <tr key={item.instanceId} className="group break-inside-avoid">
                 <td className="py-4 px-4 text-center font-bold text-slate-400 align-top">{index + 1}</td>
                 <td className="py-4 px-4 align-top">
                   <p className="font-bold text-red-700 text-base mb-1">{item.packageName}</p>
@@ -69,7 +65,7 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
         </table>
       </div>
 
-      <div className="mt-8 border-t-2 border-slate-200 pt-6">
+      <div className="mt-4 border-t-2 border-slate-200 pt-6 break-inside-avoid">
         <div className="flex flex-col items-end gap-2 w-full max-w-xs ml-auto">
           <div className="flex justify-between w-full text-slate-600 text-sm">
             <span>Tạm tính:</span>
