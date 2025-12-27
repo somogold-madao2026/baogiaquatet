@@ -440,9 +440,10 @@ const App: React.FC = () => {
                 onEdit={handleEdit}
                 onUpdateQuantity={updateQuoteItemQuantity}
                 onExport={handleExportPdf}
-                subTotal={overallMetrics.subTotal} 
-                finalTotal={overallMetrics.finalTotal}
-                discountAmount={overallMetrics.discountAmount}
+                subTotal={overallMetrics.subTotal}
+               discountAmount={overallMetrics.discountAmount}
+               vatAmount={overallMetrics.vatAmount}
+               finalTotal={overallMetrics.finalTotal}
                 maxDiscount={0}
                 discountRate={0}
                 discountInput="0"
