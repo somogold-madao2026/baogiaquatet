@@ -446,12 +446,44 @@ const App: React.FC = () => {
         </main>
 
         <footer className="bg-slate-900 text-white mt-auto border-t border-slate-800">
-           <div className="max-w-7xl mx-auto px-4 py-3">
-             <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
-                <p className="text-xs text-slate-500">© 2025 Somo Gold Corp. All rights reserved.</p>
-                <p className="text-xs font-bold">Hotline: 039.915.3674</p>
-             </div>
-           </div>
+          <div className="max-w-7xl mx-auto px-4 py-2 sm:py-3">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <div className="h-16 sm:h-20 bg-white p-2 rounded-xl shadow-md">
+                  <img src="https://i.ibb.co/MyS3gW1Y/logo.png" alt="Somo Gold Logo" className="h-full w-auto object-contain" />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Liên hệ:</span>
+                  <p className="text-xs font-bold text-slate-200">Quốc Khách</p>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Số điện thoại:</span>
+                  <a href="tel:0399153674" className="text-xs font-bold text-slate-200">039.915.3674</a>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Website:</span>
+                  <span className="text-xs text-slate-200 font-bold">somogold.vn</span>
+                </div>
+              </div>
+
+              <div className="px-3 py-1.5 bg-slate-800/40 rounded-lg border border-slate-800/60 max-w-sm lg:max-w-xs">
+                  <p className="text-xs text-slate-400 leading-tight italic">
+                    <span className="text-red-500 font-bold uppercase not-italic">Lưu ý:</span> Nền tảng chỉ được phép sử dụng để hỗ trợ nội bộ, tuyệt đối KHÔNG áp dụng cho khách hàng sử dụng trực tiếp.
+                  </p>
+              </div>
+            </div>
+
+            <div className="mt-2 pt-2 border-t border-slate-800/50 flex flex-col sm:flex-row justify-between items-center gap-2 opacity-60">
+              <p className="text-[8px] text-slate-500 font-medium uppercase tracking-widest">© 2025 Somo Gold Corp. All rights reserved.</p>
+              <div className="flex gap-4 text-[8px] text-slate-500 font-bold uppercase">
+                 <span className="hover:text-slate-300 cursor-help transition-colors">Bảo mật</span>
+                 <span className="hover:text-slate-300 cursor-help transition-colors">Sử dụng nội bộ</span>
+              </div>
+            </div>
+          </div>
         </footer>
 
         {quoteItems.length > 0 && (
