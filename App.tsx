@@ -203,7 +203,7 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-3 sm:gap-6 text-right">
+            <div className="hidden sm:flex items-center gap-3 sm:gap-6 text-right">
               <div className="flex flex-col items-end">
                 <p className="text-[8px] sm:text-[10px] uppercase font-bold text-slate-400 leading-none mb-1">Thanh toán</p>
                 <p className="text-sm sm:text-xl font-black tracking-tighter text-slate-900 leading-none">{finalTotal.toLocaleString('vi-VN')}đ</p>
@@ -380,10 +380,9 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4 flex-shrink-0">
-                 <div>
-                    <h3 className="text-lg font-black text-red-700 uppercase tracking-tighter leading-none mb-0.5">Somo Gold</h3>
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[8px] italic">"Cộng hưởng cùng thịnh vượng"</p>
-                 </div>
+                <div className="h-16 sm:h-20 bg-white p-2 rounded-xl shadow-md">
+                  <img src="https://i.ibb.co/MyS3gW1Y/logo.png" alt="Somo Gold Logo" className="h-full w-auto object-contain" />
+                </div>
               </div>
 
               <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
