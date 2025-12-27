@@ -12,7 +12,7 @@ interface QuoteListProps {
   subTotal: number;
   discountAmount: number;
   finalTotal: number;
-  vatAmount: number;
+  vatAmount: number; // ĐÃ THÊM: Prop này bắt buộc
   
   maxDiscount?: number;
   discountRate?: number;
@@ -28,7 +28,8 @@ export const QuoteList: React.FC<QuoteListProps> = ({
   onExport, 
   subTotal,
   discountAmount,
-  finalTotal
+  finalTotal,
+  vatAmount // ĐÃ THÊM: Lấy biến này ra để sử dụng
 }) => {
   return (
     <div className="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-800 flex flex-col h-[calc(100vh-8rem)] sticky top-24">
@@ -44,7 +45,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         {items.map((item) => {
           const itemTotalRaw = item.unitPrice * item.quantity;
           
-          // THÊM Math.round ĐỂ HIỂN THỊ ĐÚNG SỐ NGUYÊN
+          // Math.round để hiển thị đúng số nguyên
           const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
           
           const itemTotalFinal = itemTotalRaw - itemDiscount;
@@ -59,12 +60,12 @@ export const QuoteList: React.FC<QuoteListProps> = ({
               <div className="mb-3">
                 <h4 className="text-red-400 font-bold text-sm leading-tight">{item.packageName}</h4>
                 <div className="flex justify-between items-start mt-1">
-                   <p className="text-[10px] text-slate-400 italic">{item.details.length} thành phần</p>
-                   {item.discountRate > 0 && (
-                     <span className="text-[10px] font-bold text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded border border-green-400/20">
-                       Giảm {item.discountRate}%
-                     </span>
-                   )}
+                    <p className="text-[10px] text-slate-400 italic">{item.details.length} thành phần</p>
+                    {item.discountRate > 0 && (
+                      <span className="text-[10px] font-bold text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded border border-green-400/20">
+                        Giảm {item.discountRate}%
+                      </span>
+                    )}
                 </div>
               </div>
 
@@ -99,7 +100,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         )}
       </div>
 
-      {/* 3. Footer Thanh toán */}
+      {/* 3. Footer Thanh toán (ĐÃ CẬP NHẬT LOGIC VAT) */}
       {items.length > 0 && (
       <div className="p-5 bg-slate-800 border-t border-slate-700 space-y-4 shadow-lg z-20 shrink-0">
         
@@ -111,11 +112,11 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         
         {/* Tổng giảm giá */}
         {discountAmount > 0 && (
-        <div className="flex justify-between items-center text-xs font-bold text-green-400">
-          <span>Tổng chiết khấu:</span>
-          <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
-        </div>
-      )}
+          <div className="flex justify-between items-center text-xs font-bold text-green-400">
+            <span>Tổng chiết khấu:</span>
+            <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
+          </div>
+        )}
         
         {/* Tạm tính trước thuế */}
         <div className="flex justify-between items-center text-xs text-slate-300 font-bold border-t border-slate-700/50 pt-2">
@@ -123,28 +124,28 @@ export const QuoteList: React.FC<QuoteListProps> = ({
           <span>{(subTotal - discountAmount).toLocaleString('vi-VN')}đ</span>
         </div>
         
-        {/* VAT */}
+        {/* VAT (ĐÃ SỬA: Dùng vatAmount trực tiếp, không dùng props.vatAmount) */}
         <div className="flex justify-between items-center text-xs text-slate-400">
           <span>VAT (10%):</span>
-          <span>+ {props.vatAmount ? vatAmount.toLocaleString('vi-VN') : 0}đ</span> 
-          {/* Lưu ý: Bạn cần truyền vatAmount từ App.tsx vào props của QuoteList */}
+          <span>+ {vatAmount ? vatAmount.toLocaleString('vi-VN') : 0}đ</span> 
         </div>
         
         <div className="h-px bg-slate-700"></div>
+
         {/* Tổng cộng */}
         <div className="flex justify-between items-end">
           <span className="text-xs font-bold text-slate-300 uppercase mb-1">Tổng thanh toán:</span>
           <span className="text-2xl font-black text-white tracking-tight">{finalTotal.toLocaleString('vi-VN')}đ</span>
         </div>
           
-          <button 
-            onClick={onExport}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-900/40 uppercase tracking-wider text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            Xuất Báo Giá (PDF)
-          </button>
-        </div>
+        <button 
+          onClick={onExport}
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-900/40 uppercase tracking-wider text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Xuất Báo Giá (PDF)
+        </button>
+      </div>
       )}
 
       <style>{`
