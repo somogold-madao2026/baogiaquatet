@@ -55,7 +55,7 @@ const App: React.FC = () => {
     });
   };
 
-  // --- TÍNH TOÁN DRAFT ---
+  // --- TÍNH TOÁN DRAFT (CẬP NHẬT: THÊM VAT) ---
   const draftCalculation = useMemo(() => {
     if (!selectedPackage) return null;
     let unitPrice = 0;
@@ -73,12 +73,13 @@ const App: React.FC = () => {
       });
     });
 
-    const preDiscountTotal = unitPrice * draft.quantity; 
-    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100)); 
+    const preDiscountTotal = unitPrice * draft.quantity; // Tổng giá gốc
+    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100)); // Tiền giảm
     
-    const taxableAmount = preDiscountTotal - discountAmount; 
-    const vatAmount = Math.round(taxableAmount * 0.1); 
-    const finalTotal = taxableAmount + vatAmount; 
+    // --- LOGIC MỚI: TÍNH VAT ---
+    const taxableAmount = preDiscountTotal - discountAmount; // Giá sau khi giảm (để tính thuế)
+    const vatAmount = Math.round(taxableAmount * 0.1); // VAT 10%
+    const finalTotal = taxableAmount + vatAmount; // Tổng cộng thanh toán
 
     const isComplete = selectedPackage.rules.every(rule => 
       draft.items[rule.category]?.every(id => id !== '')
@@ -90,8 +91,8 @@ const App: React.FC = () => {
       isComplete,
       preDiscountTotal,
       discountAmount,
-      taxableAmount, 
-      vatAmount,     
+      taxableAmount, // Trả về thêm biến này để hiển thị nếu cần
+      vatAmount,     // Trả về thêm biến này
       finalTotal
     };
   }, [draft, selectedPackage]);
@@ -111,7 +112,6 @@ const App: React.FC = () => {
   const saveToQuote = () => {
     if (!selectedPackage || !draftCalculation?.isComplete || draft.quantity < 1) return;
 
-    // --- [ĐÃ SỬA LỖI TRẮNG MÀN HÌNH TẠI ĐÂY] ---
     // Thay crypto.randomUUID() bằng timestamp để an toàn trên mọi trình duyệt
     const safeId = new Date().getTime().toString() + Math.random().toString(36).substr(2, 5);
 
@@ -182,35 +182,23 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
-  // --- [ĐÃ SỬA LẠI LOGIC TÍNH TỔNG] ---
-  // Tính tổng tiền trước thuế của tất cả các món -> Sau đó mới nhân VAT 10%
+  // --- TÍNH TỔNG CỘNG TOÀN BỘ (CẬP NHẬT: THÊM VAT) ---
   const overallMetrics = useMemo(() => {
-    // 1. Tính tổng giá trị các đơn hàng (Giá gốc & Tiền chiết khấu)
-    const totals = quoteItems.reduce((acc, item) => {
-      const itemGross = item.unitPrice * item.quantity;
-      const itemDiscount = Math.round(itemGross * (item.discountRate / 100));
+    return quoteItems.reduce((acc, item) => {
+      const itemTotalRaw = item.unitPrice * item.quantity;
+      const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
       
+      const itemTaxable = itemTotalRaw - itemDiscount; // Giá tính thuế
+      const itemVat = Math.round(itemTaxable * 0.1);   // VAT 10%
+      const itemFinal = itemTaxable + itemVat;         // Giá cuối
+
       return {
-        gross: acc.gross + itemGross,
-        discount: acc.discount + itemDiscount
+        subTotal: acc.subTotal + itemTotalRaw,
+        discountAmount: acc.discountAmount + itemDiscount,
+        vatAmount: acc.vatAmount + itemVat, // Cộng dồn VAT
+        finalTotal: acc.finalTotal + itemFinal
       };
-    }, { gross: 0, discount: 0 });
-
-    // 2. Tính Tổng tiền trước thuế
-    const preTaxTotal = totals.gross - totals.discount;
-
-    // 3. Tính VAT 1 lần duy nhất trên tổng đơn (10%)
-    const vatAmount = Math.round(preTaxTotal * 0.1);
-
-    // 4. Tổng thanh toán cuối cùng
-    const finalTotal = preTaxTotal + vatAmount;
-
-    return {
-      subTotal: totals.gross,       // Tổng giá trị hàng hóa
-      discountAmount: totals.discount, // Tổng tiền giảm
-      vatAmount,                    // VAT tổng
-      finalTotal                    // Tổng thanh toán
-    };
+    }, { subTotal: 0, discountAmount: 0, vatAmount: 0, finalTotal: 0 });
   }, [quoteItems]);
 
   return (
@@ -359,6 +347,7 @@ const App: React.FC = () => {
                           </div>
                         </div>
 
+                        {/* Hàng 2: Bảng tạm tính (CẬP NHẬT GIAO DIỆN VAT) */}
                         <div className="pt-4 border-t border-slate-200 flex flex-col gap-2 text-sm">
                           <div className="flex justify-between text-slate-500">
                             <span>Đơn giá:</span>
@@ -369,24 +358,28 @@ const App: React.FC = () => {
                             <span>Thành tiền ({draft.quantity} phần):</span>
                             <span>{(draftCalculation?.preDiscountTotal || 0).toLocaleString('vi-VN')}đ</span>
                           </div>
-                          
+
+                          {/* Dòng Chiết khấu */}
                           {draft.discountRate > 0 && (
                             <div className="flex justify-between text-green-600 font-medium">
                               <span>Chiết khấu ({draft.discountRate}%):</span>
                               <span>- {(draftCalculation?.discountAmount || 0).toLocaleString('vi-VN')}đ</span>
                             </div>
                           )}
-                          
+
+                          {/* Dòng Giá sau giảm (Tạm tính trước thuế) */}
                           <div className="flex justify-between text-slate-700 font-bold border-t border-dashed border-slate-200 pt-2 mt-1">
                             <span>Tạm tính (Trước VAT):</span>
                             <span>{(draftCalculation?.taxableAmount || 0).toLocaleString('vi-VN')}đ</span>
                           </div>
-                          
+
+                          {/* Dòng VAT */}
                           <div className="flex justify-between text-slate-500 italic">
                             <span>VAT (10%):</span>
                             <span>+ {(draftCalculation?.vatAmount || 0).toLocaleString('vi-VN')}đ</span>
                           </div>
-                          
+
+                          {/* Dòng Tổng cộng */}
                           <div className="flex justify-between text-red-700 text-lg font-black pt-2 border-t border-slate-200 mt-1">
                             <span>TỔNG CỘNG:</span>
                             <span>{(draftCalculation?.finalTotal || 0).toLocaleString('vi-VN')}đ</span>
@@ -485,6 +478,7 @@ const App: React.FC = () => {
         items={quoteItems} 
         subTotal={overallMetrics.subTotal}
         discountAmount={overallMetrics.discountAmount}
+        vatAmount={overallMetrics.vatAmount}
         finalTotal={overallMetrics.finalTotal} 
       />
     </>
