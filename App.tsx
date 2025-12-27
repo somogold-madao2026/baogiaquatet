@@ -357,68 +357,22 @@ const App: React.FC = () => {
           {/* RIGHT COLUMN */}
           <div className="xl:col-span-4">
             <div className="sticky top-20 sm:top-28 space-y-6">
-              <QuoteList 
+             <QuoteList 
                 items={quoteItems} 
                 onRemove={removeFromQuote} 
                 onEdit={handleEdit}
                 onUpdateQuantity={updateQuoteItemQuantity}
-                grandTotal={grandTotal}
                 onExport={handleExportPdf}
+                
+                // --- TRUYỀN DỮ LIỆU MỚI VÀO ĐÂY ---
+                subTotal={grandTotal}             // Tổng tạm tính
+                finalTotal={finalTotal}           // Tổng cuối cùng
+                maxDiscount={maxAllowedDiscount}  // Mức giảm tối đa
+                discountRate={discountRate}       // % giảm
+                discountInput={discountInput}     // Chữ trong ô input
+                onDiscountChange={handleDiscountChange} // Hàm xử lý nhập
               />
-              
-              {quoteItems.length > 0 && (
-                <>
-                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-5">
-                    <div className="flex justify-between items-center mb-4">
-                       <label className="text-sm font-bold text-slate-700">
-                         Chiết khấu (Max {maxAllowedDiscount}%):
-                       </label>
-                       
-                       <div className="relative w-28">
-                         <input 
-                            type="text" 
-                            inputMode="numeric"
-                            value={discountInput}
-                            onChange={handleDiscountChange}
-                            className="w-full pl-3 pr-8 py-2 rounded-lg border border-slate-300 text-right font-bold text-slate-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200"
-                            placeholder="0"
-                          />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">%</span>
-                       </div>
-                    </div>
-
-                    <div className="space-y-2 pt-2 border-t border-slate-100">
-                       <div className="flex justify-between text-xs text-slate-500">
-                          <span>Tạm tính:</span>
-                          <span>{grandTotal.toLocaleString('vi-VN')}đ</span>
-                       </div>
-                       {discountRate > 0 && (
-                          <div className="flex justify-between text-xs font-bold text-green-600">
-                             <span>Đã giảm ({discountRate}%):</span>
-                             <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
-                          </div>
-                       )}
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-900 rounded-xl shadow-xl overflow-hidden text-white p-6">
-                    <div className="flex flex-col items-center justify-center mb-6">
-                       <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mb-1">TỔNG GIÁ TRỊ (SAU CÙNG)</p>
-                       <p className="text-3xl font-black text-white tracking-tight">
-                         {finalTotal.toLocaleString('vi-VN')}đ
-                       </p>
-                    </div>
-
-                    <button 
-                      onClick={handleExportPdf}
-                      className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-red-900/50 uppercase tracking-wider text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                      Xuất báo giá chuyên nghiệp
-                    </button>
-                  </div>
-                </>
-              )}
+            
             </div>
           </div>
         </main>
