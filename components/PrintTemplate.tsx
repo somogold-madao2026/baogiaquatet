@@ -17,36 +17,53 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
   return (
     <div id="print-section" className="bg-white text-slate-900 w-[210mm] min-h-[297mm] p-[10mm] md:p-[15mm] mx-auto relative">
       
-      {/* CẤU TRÚC BẢNG TỔNG: Giúp Header lặp lại tự động khi in */}
+      {/* CẤU TRÚC BẢNG TỔNG */}
       <table className="w-full border-collapse">
         
-        {/* 1. THEAD: Header (Sẽ lặp lại ở đầu mỗi trang) */}
+        {/* 1. THEAD: Header (Lặp lại mỗi trang) */}
         <thead className="table-header-group">
           <tr>
             <td>
-              <div className="flex justify-between items-start border-b-2 border-red-700 pb-4 mb-6">
+              {/* items-center: Giúp Logo và Chữ bên phải CĂN GIỮA theo trục dọc */}
+              <div className="flex justify-between items-center border-b-2 border-red-700 pb-4 mb-6">
+                
+                {/* Logo bên trái */}
                 <div className="flex items-center gap-4">
-                  {/* Logo mới theo code bạn gửi */}
                   <img src="https://i.ibb.co/MyS3gW1Y/logo.png" alt="Somo Gold" className="h-24 w-auto object-contain" />
                 </div>
-                <div className="text-right pt-4">
-                  <h2 className="text-lg font-bold uppercase text-slate-800 mb-2">Báo Giá Quà Tết</h2>
-                  <h2 className="text-2xl font-bold uppercase text-red-700 mb-2">Mã Đáo 2026>Mã>M
-                  <p className="text-sm text-slate-500">Ngày tạo: {new Date().toLocaleDateString('vi-VN')}</p>
+                
+                {/* Text bên phải (Đã sửa theo yêu cầu) */}
+                <div className="text-right">
+                  {/* Dòng 1: Báo Giá Quà Tết */}
+                  <p className="text-xl font-bold uppercase text-slate-800 leading-none">
+                    Báo Giá Quà Tết
+                  </p>
+                  
+                  {/* Dòng 2: Mã Đáo 2026 (To, Đỏ, Đậm) */}
+                  <h2 className="text-4xl font-black uppercase text-red-700 tracking-tighter my-1">
+                    Mã Đáo 2026
+                  </h2>
+                  
+                  {/* Dòng 3: Ngày lập bảng */}
+                  <p className="text-sm text-slate-500 italic">
+                    Ngày lập bảng: {new Date().toLocaleDateString('vi-VN')}
+                  </p>
                 </div>
+
               </div>
+              
               {/* Khoảng đệm dưới header */}
               <div className="h-4"></div>
             </td>
           </tr>
         </thead>
 
-        {/* 2. TBODY: Nội dung chính (Trôi xuống các trang sau) */}
+        {/* 2. TBODY: Nội dung chính */}
         <tbody>
           <tr>
             <td className="align-top">
               
-              {/* Thông tin khách hàng (Đã bổ sung lại cho đầy đủ) */}
+              {/* Thông tin khách hàng */}
               <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-100">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -121,15 +138,11 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
                 </div>
               </div>
 
-              {/* Chữ ký (Đã bổ sung lại) */}
-              <div className="mt-12 grid grid-cols-2 gap-8 text-center text-sm pb-8 break-inside-avoid">
+              {/* Chữ ký */}
+              <div className="mt-12 grid grid-cols-2 gap-8 text-left text-sm pb-8 break-inside-avoid">
                 <div>
                   <p className="font-bold uppercase text-slate-500 mb-16">Người lập phiếu</p>
-                  <p className="font-bold">Quốc Khách</p>
-                </div>
-                <div>
-                  <p className="font-bold uppercase text-slate-500 mb-16">Xác nhận của khách hàng</p>
-                  <p className="text-slate-400 italic">(Ký và ghi rõ họ tên)</p>
+                  <p className="font-bold">Võ Quốc Khách</p>
                 </div>
               </div>
 
