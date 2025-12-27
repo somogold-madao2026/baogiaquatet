@@ -14,19 +14,17 @@ const App: React.FC = () => {
   const configuratorRef = useRef<HTMLDivElement>(null);
   const rulesContainerRef = useRef<HTMLDivElement>(null);
 
-  // --- STATE DRAFT (Bây giờ chứa cả % Chiết khấu riêng) ---
   const [draft, setDraft] = useState<ActiveDraft>({
     packageId: null,
     items: {},
     quantity: 1,
-    discountRate: 0, // Mặc định 0%
+    discountRate: 0, 
   });
 
   const selectedPackage = useMemo(() => 
     GIFT_PACKAGES.find(p => p.id === draft.packageId) || null
   , [draft.packageId]);
 
-  // --- 1. XỬ LÝ CHỌN GÓI QUÀ ---
   const handlePackageSelect = (pkg: GiftPackage) => {
     const initialItems: Record<string, string[]> = {};
     pkg.rules.forEach(rule => {
@@ -36,7 +34,6 @@ const App: React.FC = () => {
         initialItems[rule.category] = Array(rule.quantity).fill('');
       }
     });
-    // Reset draft với gói mới, số lượng 1, chiết khấu 0
     setDraft({ packageId: pkg.id, items: initialItems, quantity: 1, discountRate: 0 });
   };
 
@@ -58,13 +55,12 @@ const App: React.FC = () => {
     });
   };
 
-  // --- 2. TÍNH TOÁN DRAFT (Bao gồm cả chiết khấu) ---
+  // --- TÍNH TOÁN DRAFT (ĐÃ THÊM LÀM TRÒN) ---
   const draftCalculation = useMemo(() => {
     if (!selectedPackage) return null;
     let unitPrice = 0;
     const details: { product: Product; quantity: number }[] = [];
 
-    // Tính đơn giá gốc (Tổng tiền các thành phần)
     (Object.entries(draft.items) as [string, string[]][]).forEach(([cat, ids]) => {
       ids.forEach(id => {
         const product = PRODUCTS.find(p => p.id === id);
@@ -77,10 +73,12 @@ const App: React.FC = () => {
       });
     });
 
-    // Tính toán tiền nong
-    const preDiscountTotal = unitPrice * draft.quantity; // Tổng tiền trước giảm
-    const discountAmount = preDiscountTotal * (draft.discountRate / 100); // Tiền giảm
-    const finalTotal = preDiscountTotal - discountAmount; // Tiền sau giảm
+    const preDiscountTotal = unitPrice * draft.quantity;
+    
+    // THÊM Math.round ĐỂ LÀM TRÒN SỐ TIỀN GIẢM
+    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100)); 
+    
+    const finalTotal = preDiscountTotal - discountAmount;
 
     const isComplete = selectedPackage.rules.every(rule => 
       draft.items[rule.category]?.every(id => id !== '')
@@ -96,21 +94,18 @@ const App: React.FC = () => {
     };
   }, [draft, selectedPackage]);
 
-  // --- 3. XỬ LÝ NHẬP CHIẾT KHẤU ---
   const handleDraftDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!selectedPackage) return;
     
     let val = parseInt(e.target.value) || 0;
-    const max = selectedPackage.maxDiscount || 0; // Lấy max discount của gói đó
+    const max = selectedPackage.maxDiscount || 0;
 
-    // Validate: Không được nhỏ hơn 0, không được lớn hơn Max
     if (val < 0) val = 0;
     if (val > max) val = max;
 
     setDraft(prev => ({ ...prev, discountRate: val }));
   };
 
-  // --- 4. LƯU VÀO DANH SÁCH ---
   const saveToQuote = () => {
     if (!selectedPackage || !draftCalculation?.isComplete || draft.quantity < 1) return;
 
@@ -125,7 +120,7 @@ const App: React.FC = () => {
             quantity: draft.quantity,
             unitPrice: draftCalculation.unitPrice,
             details: [...draftCalculation.details],
-            discountRate: draft.discountRate, // Lưu % chiết khấu
+            discountRate: draft.discountRate,
           }
         : item
       ));
@@ -139,12 +134,11 @@ const App: React.FC = () => {
         quantity: draft.quantity,
         unitPrice: draftCalculation.unitPrice,
         details: [...draftCalculation.details],
-        discountRate: draft.discountRate, // Lưu % chiết khấu
+        discountRate: draft.discountRate,
       };
       setQuoteItems(prev => [...prev, newItem]);
     }
 
-    // Reset draft
     setDraft({ packageId: null, items: {}, quantity: 1, discountRate: 0 });
   };
 
@@ -155,7 +149,7 @@ const App: React.FC = () => {
         packageId: itemToEdit.packageId,
         items: { ...itemToEdit.items },
         quantity: itemToEdit.quantity,
-        discountRate: itemToEdit.discountRate || 0, // Load lại chiết khấu cũ
+        discountRate: itemToEdit.discountRate || 0,
       });
       setEditingId(id);
       scrollToConfig();
@@ -182,12 +176,14 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
-  // --- TÍNH TỔNG CỘNG TOÀN BỘ BÁO GIÁ (Header/Footer) ---
-  // Công thức: Tổng của (Giá sau chiết khấu của từng món)
+  // --- TÍNH TỔNG CỘNG TOÀN BỘ (ĐÃ THÊM LÀM TRÒN) ---
   const overallMetrics = useMemo(() => {
     return quoteItems.reduce((acc, item) => {
       const itemTotalRaw = item.unitPrice * item.quantity;
-      const itemDiscount = itemTotalRaw * (item.discountRate / 100);
+      
+      // THÊM Math.round Ở ĐÂY
+      const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
+      
       const itemTotalFinal = itemTotalRaw - itemDiscount;
 
       return {
@@ -201,7 +197,6 @@ const App: React.FC = () => {
   return (
     <>
       <div className="min-h-screen bg-red-700 font-sans transition-colors duration-500 flex flex-col print:hidden">
-        {/* HEADER */}
         <header className="bg-white text-slate-900 border-b border-slate-200 shadow-lg sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-3 py-1 sm:px-4 sm:py-1 flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
@@ -226,9 +221,7 @@ const App: React.FC = () => {
         </header>
 
         <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 flex-grow">
-          {/* LEFT COLUMN */}
           <div className="xl:col-span-8 space-y-6 sm:space-y-8">
-            {/* 1. CHỌN MẪU */}
             <section className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-red-800/20 overflow-hidden">
               <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50">
                 <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
@@ -251,7 +244,6 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            {/* 2. TÙY CHỈNH (CÓ PHẦN NHẬP CHIẾT KHẤU MỚI) */}
             {selectedPackage && (
               <section ref={configuratorRef} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-red-800/20 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 scroll-mt-24">
                 <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
@@ -271,7 +263,6 @@ const App: React.FC = () => {
                 
                 <div className="p-4 sm:p-6">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-                    {/* ẢNH MINH HỌA */}
                     <div className="lg:col-span-5">
                       <div className="sticky top-32 space-y-4">
                         <div className="aspect-[4/5] rounded-xl overflow-hidden shadow-inner border border-slate-200 bg-slate-50 max-w-[300px] mx-auto lg:max-w-none">
@@ -290,7 +281,6 @@ const App: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* CONFIGURATOR */}
                     <div ref={rulesContainerRef} className="lg:col-span-7 space-y-6 sm:space-y-8 scroll-mt-28">
                       {selectedPackage.rules.map(rule => (
                         <Configurator 
@@ -301,12 +291,9 @@ const App: React.FC = () => {
                         />
                       ))}
 
-                      {/* KHU VỰC TÍNH TIỀN & CHIẾT KHẤU (MỚI) */}
                       <div className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-200 space-y-4">
                         
-                        {/* Hàng 1: Số lượng & Chiết khấu */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {/* Số lượng */}
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Số lượng</label>
                             <div className="flex items-center gap-2">
@@ -335,7 +322,6 @@ const App: React.FC = () => {
                             </div>
                           </div>
 
-                          {/* Chiết khấu (Mới) */}
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between">
                               Chiết khấu (%)
@@ -354,7 +340,6 @@ const App: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Hàng 2: Bảng tạm tính */}
                         <div className="pt-4 border-t border-slate-200 flex flex-col gap-2 text-sm">
                           <div className="flex justify-between text-slate-500">
                             <span>Đơn giá:</span>
@@ -378,7 +363,6 @@ const App: React.FC = () => {
 
                       </div>
 
-                      {/* Action Buttons */}
                       <div className="flex gap-3 pt-2">
                         {editingId && (
                           <button 
@@ -415,7 +399,6 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* RIGHT COLUMN */}
           <div className="xl:col-span-4">
             <div className="sticky top-20 sm:top-28 space-y-6">
              <QuoteList 
@@ -424,13 +407,9 @@ const App: React.FC = () => {
                 onEdit={handleEdit}
                 onUpdateQuantity={updateQuoteItemQuantity}
                 onExport={handleExportPdf}
-                
-                // Truyền dữ liệu tổng hợp mới
                 subTotal={overallMetrics.subTotal} 
                 finalTotal={overallMetrics.finalTotal}
                 discountAmount={overallMetrics.discountAmount}
-                
-                // Mấy cái prop cũ không dùng nữa nhưng truyền vào để tránh lỗi nếu chưa sửa QuoteList
                 maxDiscount={0}
                 discountRate={0}
                 discountInput="0"
@@ -441,7 +420,6 @@ const App: React.FC = () => {
         </main>
 
         <footer className="bg-slate-900 text-white mt-auto border-t border-slate-800">
-           {/* Giữ nguyên nội dung footer */}
            <div className="max-w-7xl mx-auto px-4 py-3">
              <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
                 <p className="text-xs text-slate-500">© 2025 Somo Gold Corp. All rights reserved.</p>
