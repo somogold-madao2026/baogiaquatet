@@ -43,10 +43,16 @@ export interface ConfiguredItem {
   quantity: number;
   unitPrice: number;
   details: { product: Product; quantity: number }[];
+  
+  // --- THÊM MỚI: Lưu % chiết khấu cho từng phần quà ---
+  discountRate: number; 
 }
 
 export interface ActiveDraft {
   packageId: string | null;
   items: Record<string, string[]>;
   quantity: number;
+  
+  // --- THÊM MỚI: Lưu % chiết khấu khi đang chỉnh sửa ---
+  discountRate: number; 
 }
