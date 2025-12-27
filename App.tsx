@@ -194,13 +194,12 @@ const App: React.FC = () => {
         <header className="bg-white text-slate-900 border-b border-slate-200 shadow-lg sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-3 py-2 sm:px-4 sm:py-3 flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              <div className="h-16 sm:h-20 w-auto flex items-center">
-                <img src="https://i.ibb.co/21zqDyZR/logo-web-somo-gold.png" alt="Somo Gold Logo" className="h-full object-contain" />
+              <div className="h-24 sm:h-32 w-auto flex items-center">
+                <img src="https://i.ibb.co/KHtjSTp/logosomogold.png" alt="logosomogold" border="0">
               </div>
               <div className="h-6 sm:h-8 w-px bg-slate-200"></div>
               <div className="min-w-0">
-                <h1 className="text-sm sm:text-lg font-black uppercase tracking-tight text-red-700 truncate">Somo Gold</h1>
-                <p className="text-slate-400 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest leading-none truncate">Mã Đáo 2026</p>
+                <p className="text-red-700 text-xl sm:text-3xl font-bold uppercase tracking-widest leading-none truncate">Mã Đáo 2026</p>
               </div>
             </div>
             
@@ -381,8 +380,8 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4 flex-shrink-0">
-                 <div className="h-20 w-auto bg-white p-1 rounded shadow-sm">
-                   <img src="https://i.ibb.co/21zqDyZR/logo-web-somo-gold.png" alt="Somo Gold" className="h-full object-contain" />
+                 <div className="h-24 w-auto bg-white p-1 rounded shadow-sm">
+                   <img src="https://i.ibb.co/KHtjSTp/logosomogold.png" alt="logosomogold" border="0">
                  </div>
                  <div>
                     <h3 className="text-lg font-black uppercase tracking-tighter leading-none mb-0.5">Somo Gold</h3>
