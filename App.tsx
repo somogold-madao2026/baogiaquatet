@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef } from 'react';
 import { ActiveDraft, ConfiguredItem, GiftPackage, Product } from './types';
 import { GIFT_PACKAGES, PRODUCTS } from './constants';
@@ -72,13 +73,12 @@ const App: React.FC = () => {
       });
     });
 
-    const preDiscountTotal = unitPrice * draft.quantity;
-    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100));
+    const preDiscountTotal = unitPrice * draft.quantity; 
+    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100)); 
     
-    // Tính VAT cho draft
-    const taxableAmount = preDiscountTotal - discountAmount;
-    const vatAmount = Math.round(taxableAmount * 0.1);
-    const finalTotal = taxableAmount + vatAmount;
+    const taxableAmount = preDiscountTotal - discountAmount; 
+    const vatAmount = Math.round(taxableAmount * 0.1); 
+    const finalTotal = taxableAmount + vatAmount; 
 
     const isComplete = selectedPackage.rules.every(rule => 
       draft.items[rule.category]?.every(id => id !== '')
@@ -90,8 +90,8 @@ const App: React.FC = () => {
       isComplete,
       preDiscountTotal,
       discountAmount,
-      taxableAmount,
-      vatAmount,
+      taxableAmount, 
+      vatAmount,     
       finalTotal
     };
   }, [draft, selectedPackage]);
@@ -111,9 +111,9 @@ const App: React.FC = () => {
   const saveToQuote = () => {
     if (!selectedPackage || !draftCalculation?.isComplete || draft.quantity < 1) return;
 
-    // --- SỬA LỖI TRẮNG MÀN HÌNH ---
-    // Thay crypto.randomUUID() bằng Date.now() để an toàn hơn trên mọi trình duyệt
-    const newId = new Date().getTime().toString() + Math.random().toString(36).substr(2, 9);
+    // --- [ĐÃ SỬA LỖI TRẮNG MÀN HÌNH TẠI ĐÂY] ---
+    // Thay crypto.randomUUID() bằng timestamp để an toàn trên mọi trình duyệt
+    const safeId = new Date().getTime().toString() + Math.random().toString(36).substr(2, 5);
 
     if (editingId) {
       setQuoteItems(prev => prev.map(item => 
@@ -133,7 +133,7 @@ const App: React.FC = () => {
       setEditingId(null);
     } else {
       const newItem: ConfiguredItem = {
-        instanceId: newId, // Đã sửa
+        instanceId: safeId, // Sử dụng ID an toàn
         packageId: selectedPackage.id,
         packageName: selectedPackage.name,
         items: { ...draft.items },
@@ -182,9 +182,10 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
-  // --- TÍNH TỔNG CỘNG TOÀN BỘ (VAT trên tổng) ---
+  // --- [ĐÃ SỬA LẠI LOGIC TÍNH TỔNG] ---
+  // Tính tổng tiền trước thuế của tất cả các món -> Sau đó mới nhân VAT 10%
   const overallMetrics = useMemo(() => {
-    // 1. Tính tổng gốc và tổng giảm
+    // 1. Tính tổng giá trị các đơn hàng (Giá gốc & Tiền chiết khấu)
     const totals = quoteItems.reduce((acc, item) => {
       const itemGross = item.unitPrice * item.quantity;
       const itemDiscount = Math.round(itemGross * (item.discountRate / 100));
@@ -195,16 +196,20 @@ const App: React.FC = () => {
       };
     }, { gross: 0, discount: 0 });
 
-    // 2. Tính thuế trên tổng
+    // 2. Tính Tổng tiền trước thuế
     const preTaxTotal = totals.gross - totals.discount;
+
+    // 3. Tính VAT 1 lần duy nhất trên tổng đơn (10%)
     const vatAmount = Math.round(preTaxTotal * 0.1);
+
+    // 4. Tổng thanh toán cuối cùng
     const finalTotal = preTaxTotal + vatAmount;
 
     return {
-      subTotal: totals.gross,
-      discountAmount: totals.discount,
-      vatAmount,
-      finalTotal
+      subTotal: totals.gross,       // Tổng giá trị hàng hóa
+      discountAmount: totals.discount, // Tổng tiền giảm
+      vatAmount,                    // VAT tổng
+      finalTotal                    // Tổng thanh toán
     };
   }, [quoteItems]);
 
@@ -434,12 +439,14 @@ const App: React.FC = () => {
                 onEdit={handleEdit}
                 onUpdateQuantity={updateQuoteItemQuantity}
                 onExport={handleExportPdf}
-                
-                // --- ĐÃ CẬP NHẬT TRUYỀN ĐÚNG BIẾN ĐỂ KHÔNG BỊ LỖI ---
                 subTotal={overallMetrics.subTotal}
                 discountAmount={overallMetrics.discountAmount}
-                vatAmount={overallMetrics.vatAmount} // Đã thêm biến này
+                vatAmount={overallMetrics.vatAmount}
                 finalTotal={overallMetrics.finalTotal}
+                maxDiscount={0}
+                discountRate={0}
+                discountInput="0"
+                onDiscountChange={() => {}}
               />
             </div>
           </div>
@@ -472,7 +479,6 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* ĐÃ TRUYỀN ĐỦ BIẾN CHO MODAL ĐỂ KHÔNG BỊ LỖI */}
       <PdfPreviewModal 
         isOpen={showPdfPreview} 
         onClose={() => setShowPdfPreview(false)} 
