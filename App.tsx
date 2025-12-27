@@ -293,16 +293,22 @@ const App: React.FC = () => {
 
                       <div className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-200 space-y-4">
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex flex-col gap-1">
+                        {/* Hàng 1: Số lượng & Chiết khấu */}
+                        {/* CẬP NHẬT: Dùng flex để xếp các ô gọn gàng, items-end để căn đáy thẳng hàng */}
+                        <div className="flex flex-wrap items-end gap-6 sm:gap-12">
+                          
+                          {/* 1. Số lượng */}
+                          <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Số lượng</label>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
                               <button 
                                 onClick={() => setDraft(d => ({...d, quantity: Math.max(1, d.quantity - 1)}))}
-                                className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center hover:bg-slate-100 shadow-sm text-slate-600"
+                                className="w-9 h-9 rounded-lg bg-white border border-slate-300 flex items-center justify-center hover:bg-slate-100 shadow-sm text-slate-600 active:scale-95 transition-transform"
                               >
                                 -
                               </button>
+                              
+                              {/* SỬA: Đặt w-14 (khoảng 56px) là vừa đủ đẹp cho số lượng */}
                               <input 
                                 type="number" 
                                 value={draft.quantity === 0 ? '' : draft.quantity}
@@ -311,33 +317,38 @@ const App: React.FC = () => {
                                   setDraft(d => ({...d, quantity: val === '' ? 0 : Math.max(0, parseInt(val) || 0)}));
                                 }}
                                 onBlur={() => { if (draft.quantity < 1) setDraft(d => ({...d, quantity: 1})); }}
-                                className="flex-1 h-10 text-center font-black text-lg bg-white border border-slate-300 rounded-lg focus:border-red-500 outline-none"
+                                className="w-14 h-9 text-center font-black text-lg bg-white border border-slate-300 rounded-lg focus:border-red-500 outline-none"
                               />
+                              
                               <button 
                                 onClick={() => setDraft(d => ({...d, quantity: d.quantity + 1}))}
-                                className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center hover:bg-slate-100 shadow-sm text-slate-600"
+                                className="w-9 h-9 rounded-lg bg-white border border-slate-300 flex items-center justify-center hover:bg-slate-100 shadow-sm text-slate-600 active:scale-95 transition-transform"
                               >
                                 +
                               </button>
                             </div>
                           </div>
-
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between">
-                              Chiết khấu (%)
-                              <span className="text-red-500">Max: {selectedPackage.maxDiscount}%</span>
+                          
+                          {/* 2. Chiết khấu */}
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                              Chiết khấu
+                              <span className="text-[9px] text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Max: {selectedPackage.maxDiscount}%</span>
                             </label>
-                            <div className="relative">
+                            
+                            {/* SỬA: Đặt w-28 (khoảng 112px) để ô nhập gọn gàng nhưng vẫn đủ hiển thị */}
+                            <div className="relative w-28">
                               <input 
                                 type="number" 
                                 value={draft.discountRate === 0 ? '' : draft.discountRate}
                                 placeholder="0"
                                 onChange={handleDraftDiscountChange}
-                                className="w-full h-10 pl-3 pr-8 font-bold text-slate-800 bg-white border border-slate-300 rounded-lg focus:border-red-500 outline-none"
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                                className="w-full h-9 pl-3 pr-8 font-bold text-slate-800 bg-white border border-slate-300 rounded-lg focus:border-red-500 outline-none text-center"
+                                />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs pointer-events-none">%</span>
                             </div>
                           </div>
+                        
                         </div>
 
                         <div className="pt-4 border-t border-slate-200 flex flex-col gap-2 text-sm">
