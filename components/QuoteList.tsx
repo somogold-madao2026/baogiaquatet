@@ -12,6 +12,7 @@ interface QuoteListProps {
   subTotal: number;
   discountAmount: number;
   finalTotal: number;
+  vatAmount: number;
   
   maxDiscount?: number;
   discountRate?: number;
@@ -98,27 +99,43 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         )}
       </div>
 
+      {/* 3. Footer Thanh toán */}
       {items.length > 0 && (
-        <div className="p-5 bg-slate-800 border-t border-slate-700 space-y-4 shadow-lg z-20 shrink-0">
-          
-          <div className="flex justify-between items-center text-xs text-slate-400 font-medium">
-            <span>Tổng giá gốc:</span>
-            <span>{subTotal.toLocaleString('vi-VN')}đ</span>
-          </div>
-
-          {discountAmount > 0 && (
-            <div className="flex justify-between items-center text-xs font-bold text-green-400">
-              <span>Tổng được giảm:</span>
-              <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
-            </div>
-          )}
-
-          <div className="h-px bg-slate-700"></div>
-
-          <div className="flex justify-between items-end">
-             <span className="text-xs font-bold text-slate-300 uppercase mb-1">Cần thanh toán:</span>
-             <span className="text-2xl font-black text-white tracking-tight">{finalTotal.toLocaleString('vi-VN')}đ</span>
-          </div>
+      <div className="p-5 bg-slate-800 border-t border-slate-700 space-y-4 shadow-lg z-20 shrink-0">
+        
+        {/* Tổng giá gốc */}
+        <div className="flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>Tổng giá trị hàng hóa:</span>
+          <span>{subTotal.toLocaleString('vi-VN')}đ</span>
+        </div>
+        
+        {/* Tổng giảm giá */}
+        {discountAmount > 0 && (
+        <div className="flex justify-between items-center text-xs font-bold text-green-400">
+          <span>Tổng chiết khấu:</span>
+          <span>- {discountAmount.toLocaleString('vi-VN')}đ</span>
+        </div>
+      )}
+        
+        {/* Tạm tính trước thuế */}
+        <div className="flex justify-between items-center text-xs text-slate-300 font-bold border-t border-slate-700/50 pt-2">
+          <span>Tạm tính (Trước VAT):</span>
+          <span>{(subTotal - discountAmount).toLocaleString('vi-VN')}đ</span>
+        </div>
+        
+        {/* VAT */}
+        <div className="flex justify-between items-center text-xs text-slate-400">
+          <span>VAT (10%):</span>
+          <span>+ {props.vatAmount ? props.vatAmount.toLocaleString('vi-VN') : 0}đ</span> 
+          {/* Lưu ý: Bạn cần truyền vatAmount từ App.tsx vào props của QuoteList */}
+        </div>
+        
+        <div className="h-px bg-slate-700"></div>
+        {/* Tổng cộng */}
+        <div className="flex justify-between items-end">
+          <span className="text-xs font-bold text-slate-300 uppercase mb-1">Tổng thanh toán:</span>
+          <span className="text-2xl font-black text-white tracking-tight">{finalTotal.toLocaleString('vi-VN')}đ</span>
+        </div>
           
           <button 
             onClick={onExport}
