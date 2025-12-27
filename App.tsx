@@ -317,7 +317,7 @@ const App: React.FC = () => {
                                   setDraft(d => ({...d, quantity: val === '' ? 0 : Math.max(0, parseInt(val) || 0)}));
                                 }}
                                 onBlur={() => { if (draft.quantity < 1) setDraft(d => ({...d, quantity: 1})); }}
-                                className="w-14 h-9 text-center font-black text-lg bg-white border border-slate-300 rounded-lg focus:border-red-500 outline-none"
+                                className="w-24 h-9 text-center font-black text-lg bg-white border border-slate-300 rounded-lg focus:border-red-500 outline-none"
                               />
                               
                               <button 
