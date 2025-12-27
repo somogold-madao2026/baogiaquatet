@@ -192,14 +192,14 @@ const App: React.FC = () => {
     <>
       <div className="min-h-screen bg-red-700 font-sans transition-colors duration-500 flex flex-col print:hidden">
         <header className="bg-white text-slate-900 border-b border-slate-200 shadow-lg sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-3 py-2 sm:px-4 sm:py-3 flex justify-between items-center gap-2">
+          <div className="max-w-7xl mx-auto px-3 py-1 sm:px-4 sm:py-1 flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <div className="h-16 sm:h-20 w-auto flex items-center">
                 <img src="https://i.ibb.co/KHtjSTp/logosomogold.png" alt="Somo Gold" className="h-48 w-auto object-contain" />
               </div>
               <div className="h-6 sm:h-8 w-px bg-slate-200"></div>
               <div className="min-w-0">
-                <p className="text-red-700 text-base sm:text-xl font-bold uppercase tracking-widest leading-none truncate">Mã Đáo 2026</p>
+                <p className="text-red-700 text-base sm:text-2xl font-bold uppercase tracking-widest leading-none truncate">Mã Đáo 2026</p>
               </div>
             </div>
             
@@ -377,7 +377,7 @@ const App: React.FC = () => {
         </main>
 
         <footer className="bg-slate-900 text-white mt-auto border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="max-w-7xl mx-auto px-4 py-2 sm:py-3">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4 flex-shrink-0">
                 <div className="h-16 sm:h-20 bg-white p-2 rounded-xl shadow-md">
@@ -386,15 +386,15 @@ const App: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-baseline gap-2">
                   <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Liên hệ:</span>
                   <p className="text-xs font-bold text-slate-200">Quốc Khách</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-baseline gap-2">
                   <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Số điện thoại:</span>
                   <a href="tel:0399153674" className="text-xs font-bold text-slate-200">039.915.3674</a>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-baseline gap-2">
                   <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Website:</span>
                   <span className="text-xs text-slate-200 font-bold">somogold.vn</span>
                 </div>
@@ -407,7 +407,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-slate-800/50 flex flex-col sm:flex-row justify-between items-center gap-2 opacity-60">
+            <div className="mt-2 pt-2 border-t border-slate-800/50 flex flex-col sm:flex-row justify-between items-center gap-2 opacity-60">
               <p className="text-[8px] text-slate-500 font-medium uppercase tracking-widest">© 2025 Somo Gold Corp. All rights reserved.</p>
               <div className="flex gap-4 text-[8px] text-slate-500 font-bold uppercase">
                  <span className="hover:text-slate-300 cursor-help transition-colors">Bảo mật</span>
