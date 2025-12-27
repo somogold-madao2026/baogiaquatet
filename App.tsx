@@ -199,7 +199,7 @@ const App: React.FC = () => {
               </div>
               <div className="h-6 sm:h-8 w-px bg-slate-200"></div>
               <div className="min-w-0">
-                <p className="text-red-700 text-base sm:text-2xl font-bold uppercase tracking-widest leading-none truncate">Mã Đáo 2026</p>
+                <p className="text-red-700 text-xl sm:text-3xl font-bold uppercase tracking-widest leading-none truncate">Mã Đáo 2026</p>
               </div>
             </div>
             
