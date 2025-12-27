@@ -194,8 +194,8 @@ const App: React.FC = () => {
         <header className="bg-white text-slate-900 border-b border-slate-200 shadow-lg sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-3 py-2 sm:px-4 sm:py-3 flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              <div className="h-10 sm:h-12 w-auto flex items-center">
-                <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Somo Gold Logo" className="h-full object-contain" />
+              <div className="h-16 sm:h-20 w-auto flex items-center">
+                <img src="https://i.ibb.co/21zqDyZR/logo-web-somo-gold.png" alt="Somo Gold Logo" className="h-full object-contain" />
               </div>
               <div className="h-6 sm:h-8 w-px bg-slate-200"></div>
               <div className="min-w-0">
@@ -381,12 +381,12 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4 flex-shrink-0">
-                 <div className="h-10 w-auto bg-white p-1 rounded shadow-sm">
-                    <img src="https://i.ibb.co/scLt3dT/logo-Somo-Gold.jpg" alt="Somo Gold" className="h-full object-contain" />
+                 <div className="h-20 w-auto bg-white p-1 rounded shadow-sm">
+                   <img src="https://i.ibb.co/21zqDyZR/logo-web-somo-gold.png" alt="Somo Gold" className="h-full object-contain" />
                  </div>
                  <div>
                     <h3 className="text-lg font-black uppercase tracking-tighter leading-none mb-0.5">Somo Gold</h3>
-                    <p className="text-red-500 font-bold uppercase tracking-widest text-[8px] italic">"Cộng hưởng cùng thịnh vượng"</p>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[8px] italic">"Cộng hưởng cùng thịnh vượng"</p>
                  </div>
               </div>
 
@@ -397,16 +397,16 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Số điện thoại:</span>
-                  <a href="tel:0399153674" className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors">039.915.3674</a>
+                  <a href="tel:0399153674" className="text-xs font-bold text-slate-200">039.915.3674</a>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Website:</span>
-                  <span className="text-xs text-slate-400 font-medium">somogold.vn</span>
+                  <span className="text-xs text-slate-200 font-bold">somogold.vn</span>
                 </div>
               </div>
 
               <div className="px-3 py-1.5 bg-slate-800/40 rounded-lg border border-slate-800/60 max-w-sm lg:max-w-xs">
-                  <p className="text-[9px] text-slate-400 leading-tight italic">
+                  <p className="text-xs text-slate-400 leading-tight italic">
                     <span className="text-red-500 font-bold uppercase not-italic">Lưu ý:</span> Nền tảng chỉ được phép sử dụng để hỗ trợ nội bộ, tuyệt đối KHÔNG áp dụng cho khách hàng sử dụng trực tiếp.
                   </p>
               </div>
