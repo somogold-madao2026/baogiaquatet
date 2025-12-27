@@ -1,7 +1,9 @@
 
 import { Category, Product, GiftPackage } from './types';
 
-export const PRODUCTS: Product[] = [
+// 1. Định nghĩa dữ liệu gốc (Giá đã bao gồm VAT)
+// Đổi tên biến này thành RAW_PRODUCTS và không export trực tiếp
+const RAW_PRODUCTS: Product[] = [
   // Packaging
   { id: 'box-tl', name: 'Hộp giấy Mã đáo Tấn Lộc', category: Category.BOX, price: 275000, unit: 'Hộp' },
   { id: 'box-tc', name: 'Hộp giấy Mã Đáo Thành Công', category: Category.BOX, price: 140000, unit: 'Hộp' },
@@ -49,6 +51,15 @@ export const PRODUCTS: Product[] = [
   { id: 'snack-tk-hop', name: 'Tôm khô loại 1 (115g)', category: Category.SNACK_BOX, price: 169000, unit: 'Hộp' },
 ];
 
+// 2. Xử lý logic tính giá: Chia 1.1 và làm tròn
+// Math.round() sẽ làm tròn số nguyên gần nhất (Ví dụ: 127272.7 -> 127273)
+export const PRODUCTS: Product[] = RAW_PRODUCTS.map((product) => ({
+  ...product,
+  // Giá hiển thị = Giá đã VAT chia 1.1
+  price: Math.round(product.price / 1.1),
+}));
+
+// GIỮ NGUYÊN PHẦN GIFT_PACKAGES BÊN DƯỚI
 export const GIFT_PACKAGES: GiftPackage[] = [
   {
     id: 'tan-loc',
@@ -56,7 +67,7 @@ export const GIFT_PACKAGES: GiftPackage[] = [
     tier: 'Cao cấp',
     description: 'Thiết kế cao cấp với hộp giấy và bộ ly thủy tinh.',
     imageUrl: 'https://i.ibb.co/ZzCNTkv8/M-O-T-N-L-C.jpg',
-    maxDiscount: 20, // Đã thêm: Tối đa 20%
+    maxDiscount: 20, 
     rules: [
       { category: Category.BOX, quantity: 1, isFixed: true, fixedProductId: 'box-tl' },
       { category: Category.WINE_PREMIUM, quantity: 2, isFixed: false },
@@ -69,7 +80,7 @@ export const GIFT_PACKAGES: GiftPackage[] = [
     tier: 'Trung cấp',
     description: 'Thiết kế trung cấp sang trọng, cân đối giữa rượu và khô mứt.',
     imageUrl: 'https://i.ibb.co/7JPc5g4f/M-O-TH-NH-C-NG.jpg',
-    maxDiscount: 15, // Đã thêm: Tối đa 15%
+    maxDiscount: 15,
     rules: [
       { category: Category.BOX, quantity: 1, isFixed: true, fixedProductId: 'box-tc' },
       { category: Category.WINE_SG, quantity: 1, isFixed: false },
@@ -83,7 +94,7 @@ export const GIFT_PACKAGES: GiftPackage[] = [
     tier: 'Tiêu chuẩn',
     description: 'Mô hình đế thuyền độc đáo, nhiều loại mứt đa dạng.',
     imageUrl: 'https://i.ibb.co/SXJPYdBD/M-O-B-NH-AN-THUY-N.jpg',
-    maxDiscount: 15, // Đã thêm: Tối đa 15%
+    maxDiscount: 15,
     rules: [
       { category: Category.BOX, quantity: 1, isFixed: true, fixedProductId: 'box-thuyen' },
       { category: Category.WINE_AK, quantity: 1, isFixed: false },
@@ -97,7 +108,7 @@ export const GIFT_PACKAGES: GiftPackage[] = [
     tier: 'Tiêu chuẩn',
     description: 'Tiết kiệm và thực tế với túi nhựa bền đẹp.',
     imageUrl: 'https://i.ibb.co/Q3NzCYd4/M-O-B-NH-AN-T-I-NH-A.jpg',
-    maxDiscount: 15, // Đã thêm: Tối đa 15%
+    maxDiscount: 15,
     rules: [
       { category: Category.BOX, quantity: 1, isFixed: true, fixedProductId: 'box-tui' },
       { category: Category.WINE_AK, quantity: 1, isFixed: false },
