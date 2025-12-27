@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PackageRule, Category } from '../types';
+import { PackageRule } from '../types'; // Đã bỏ import Category vì không dùng
 import { PRODUCTS } from '../constants';
 
 interface ConfiguratorProps {
@@ -12,7 +12,7 @@ interface ConfiguratorProps {
 export const Configurator: React.FC<ConfiguratorProps> = ({ rule, selections, onSelect }) => {
   const availableProducts = PRODUCTS.filter(p => p.category === rule.category);
 
-  // Nếu là thành phần cố định, chúng ta chỉ cần hiển thị thông tin tóm tắt
+  // --- TRƯỜNG HỢP 1: CỐ ĐỊNH (FIXED) ---
   if (rule.isFixed) {
     const fixedProduct = PRODUCTS.find(p => p.id === rule.fixedProductId);
     return (
@@ -33,6 +33,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({ rule, selections, on
             <div>
               <p className="font-bold text-sm md:text-base">{fixedProduct?.name}</p>
               <p className="text-xs text-slate-500 italic">Quy cách: {rule.quantity} {fixedProduct?.unit}</p>
+              {/* Đã ẩn giá ở đây nếu có */}
             </div>
           </div>
           <div className="text-right">
@@ -45,7 +46,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({ rule, selections, on
     );
   }
 
-  // Đối với các thành phần cho phép lựa chọn, giữ nguyên hiển thị dạng lưới
+  // --- TRƯỜNG HỢP 2: TỰ CHỌN (SELECTABLE) ---
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-end border-b border-slate-100 pb-2">
@@ -73,7 +74,8 @@ export const Configurator: React.FC<ConfiguratorProps> = ({ rule, selections, on
                 <option value="">-- Chọn một thành phần --</option>
                 {availableProducts.map(p => (
                   <option key={p.id} value={p.id} className="text-slate-800 not-italic font-medium">
-                    {p.name} - {p.price.toLocaleString('vi-VN')}đ
+                    {/* ĐÃ SỬA: Chỉ hiển thị Tên, xóa phần hiển thị Giá */}
+                    {p.name}
                   </option>
                 ))}
               </select>
