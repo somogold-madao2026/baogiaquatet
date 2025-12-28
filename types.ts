@@ -1,5 +1,5 @@
 
-// Bạn vẫn có thể giữ Enum này để dùng cho việc hiển thị tên hiển thị (Label)
+// 1. Giữ nguyên Enum cũ để constants.ts không bị lỗi
 export enum Category {
   BOX = 'Hộp/Bao bì',
   WINE_PREMIUM = 'Cửu Long Mỹ Tửu',
@@ -14,17 +14,18 @@ export enum Category {
 export interface Product {
   id: string;
   name: string;
-  // Đổi thành string để tránh lỗi xung đột kiểu khi import dữ liệu
-  category: string; 
+  // Cho phép cả Enum và string để App.tsx dễ xử lý
+  category: Category | string; 
   price: number;
-  unit?: string; // Để optional (?) để không bắt buộc phải có
+  unit?: string;
 }
 
-export interface GiftPackageRule {
-  // Đổi thành string để khớp với key trong Record<string, string[]> của App.tsx
-  category: string; 
+// Đổi tên PackageRule thành GiftPackageRule hoặc giữ nguyên tùy ý
+// Nhưng ở đây tôi dùng PackageRule cho khớp với code cũ của bạn
+export interface PackageRule {
+  category: Category | string;
   quantity: number;
-  isFixed?: boolean; // Optional
+  isFixed?: boolean;
   fixedProductId?: string;
   allowedCategories?: string[];
 }
@@ -32,11 +33,13 @@ export interface GiftPackageRule {
 export interface GiftPackage {
   id: string;
   name: string;
-  // tier?: 'Cao cấp' | 'Trung cấp' | 'Tiêu chuẩn'; // Có thể giữ hoặc bỏ tùy nhu cầu
+  tier?: 'Cao cấp' | 'Trung cấp' | 'Tiêu chuẩn';
   description?: string;
-  rules: GiftPackageRule[];
+  rules: PackageRule[]; // Sử dụng PackageRule
   imageUrl: string;
-  maxDiscount?: number; // Bắt buộc có để App.tsx không lỗi logic chiết khấu
+  
+  // --- QUAN TRỌNG: Thêm dòng này để sửa lỗi App.tsx ---
+  maxDiscount?: number; 
   basePrice?: number;
 }
 
@@ -44,13 +47,12 @@ export interface ConfiguredItem {
   instanceId: string;
   packageId: string;
   packageName: string;
-  // Quan trọng: Record này dùng string key để tương thích với Object.entries()
-  items: Record<string, string[]>; 
+  items: Record<string, string[]>;
   quantity: number;
   unitPrice: number;
   details: { product: Product; quantity: number }[];
   
-  // Lưu % chiết khấu
+  // --- QUAN TRỌNG: Thêm dòng này ---
   discountRate: number; 
 }
 
@@ -59,6 +61,6 @@ export interface ActiveDraft {
   items: Record<string, string[]>;
   quantity: number;
   
-  // Lưu % chiết khấu
+  // --- QUAN TRỌNG: Thêm dòng này ---
   discountRate: number; 
 }
