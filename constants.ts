@@ -1,9 +1,8 @@
 
 import { Category, Product, GiftPackage } from './types';
 
-// 1. Định nghĩa dữ liệu gốc (Giá đã bao gồm VAT)
-// Đổi tên biến này thành RAW_PRODUCTS và không export trực tiếp
-const RAW_PRODUCTS: Product[] = [
+// Dữ liệu gốc (Giá đã bao gồm VAT)
+const RAW_PRODUCTS = [
   // Packaging
   { id: 'box-tl', name: 'Hộp giấy Mã đáo Tấn Lộc', category: Category.BOX, price: 275000, unit: 'Hộp' },
   { id: 'box-tc', name: 'Hộp giấy Mã Đáo Thành Công', category: Category.BOX, price: 140000, unit: 'Hộp' },
@@ -51,15 +50,14 @@ const RAW_PRODUCTS: Product[] = [
   { id: 'snack-tk-hop', name: 'Tôm khô loại 1 (115g)', category: Category.SNACK_BOX, price: 169000, unit: 'Hộp' },
 ];
 
-// 2. Xử lý logic tính giá: Chia 1.1 và làm tròn
-// Math.round() sẽ làm tròn số nguyên gần nhất (Ví dụ: 127272.7 -> 127273)
 export const PRODUCTS: Product[] = RAW_PRODUCTS.map((product) => ({
   ...product,
-  // Giá hiển thị = Giá đã VAT chia 1.1
+  // 1. price: Giá hiển thị (đã chia 1.1) -> Dùng để hiển thị đơn giá lẻ
   price: Math.round(product.price / 1.1),
+  // 2. originalPrice: GIÁ GỐC (Chưa chia) -> Dùng để tính tổng tiền cho chẵn
+  originalPrice: product.price 
 }));
 
-// GIỮ NGUYÊN PHẦN GIFT_PACKAGES BÊN DƯỚI
 export const GIFT_PACKAGES: GiftPackage[] = [
   {
     id: 'tan-loc',
