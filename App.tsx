@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef } from 'react';
 import { ActiveDraft, ConfiguredItem, GiftPackage, Product } from './types';
 import { GIFT_PACKAGES, PRODUCTS } from './constants';
@@ -54,7 +55,10 @@ const App: React.FC = () => {
     });
   };
 
-  // --- TÍNH TOÁN DRAFT ---
+  // --- HÀM BỔ TRỢ: LÀM TRÒN ĐẾN HÀNG NGHÌN ---
+  const roundToThousand = (num: number) => Math.round(num / 1000) * 1000;
+
+  // --- TÍNH TOÁN DRAFT (CẬP NHẬT LOGIC LÀM TRÒN) ---
   const draftCalculation = useMemo(() => {
     if (!selectedPackage) return null;
     let unitPrice = 0;
@@ -72,13 +76,21 @@ const App: React.FC = () => {
       });
     });
 
+    // 1. Tính toán giá trị GỐC (Raw) - Không làm tròn sớm
     const preDiscountTotal = unitPrice * draft.quantity;
-    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100));
-    
-    // VAT Logic
-    const taxableAmount = preDiscountTotal - discountAmount;
-    const vatAmount = Math.round(taxableAmount * 0.1);
-    const finalTotal = taxableAmount + vatAmount;
+    const discountAmountRaw = preDiscountTotal * (draft.discountRate / 100);
+    const taxableAmountRaw = preDiscountTotal - discountAmountRaw;
+    const vatAmountRaw = taxableAmountRaw * 0.1;
+
+    // 2. Tính Tổng cuối cùng và LÀM TRÒN ĐẾN HÀNG NGHÌN
+    const totalRaw = taxableAmountRaw + vatAmountRaw;
+    const finalTotal = roundToThousand(totalRaw);
+
+    // 3. Tính ngược lại các thành phần hiển thị
+    // (VAT làm tròn chuẩn, Tạm tính = Tổng - VAT để khớp số liệu hiển thị)
+    const vatAmount = Math.round(vatAmountRaw);
+    const taxableAmount = finalTotal - vatAmount; // Điều chỉnh Tạm tính theo Tổng đã làm tròn
+    const discountAmount = Math.round(discountAmountRaw);
 
     const isComplete = selectedPackage.rules.every(rule => 
       draft.items[rule.category]?.every(id => id !== '')
@@ -90,7 +102,7 @@ const App: React.FC = () => {
       isComplete,
       preDiscountTotal,
       discountAmount,
-      taxableAmount,
+      taxableAmount, // Giá trị này đã được điều chỉnh để cộng với VAT ra chẵn FinalTotal
       vatAmount,
       finalTotal
     };
@@ -108,11 +120,10 @@ const App: React.FC = () => {
     setDraft(prev => ({ ...prev, discountRate: val }));
   };
 
-  // --- LOGIC GỘP QUÀ (ĐÃ SỬA) ---
+  // --- LOGIC GỘP QUÀ ---
   const saveToQuote = () => {
     if (!selectedPackage || !draftCalculation?.isComplete || draft.quantity < 1) return;
 
-    // Trường hợp SỬA: Giữ nguyên logic cũ
     if (editingId) {
       setQuoteItems(prev => prev.map(item => 
         item.instanceId === editingId 
@@ -133,11 +144,9 @@ const App: React.FC = () => {
       return;
     }
 
-    // Trường hợp THÊM MỚI: Kiểm tra trùng lặp
     const currentItemsSignature = JSON.stringify(draft.items);
 
     setQuoteItems(prev => {
-      // Tìm xem có phần quà nào giống hệt không (Cùng PackageID, Items, Discount)
       const existingItemIndex = prev.findIndex(item => 
         item.packageId === selectedPackage.id && 
         JSON.stringify(item.items) === currentItemsSignature &&
@@ -145,7 +154,6 @@ const App: React.FC = () => {
       );
 
       if (existingItemIndex !== -1) {
-        // Nếu đã có -> Cộng dồn số lượng
         const newItems = [...prev];
         newItems[existingItemIndex] = {
           ...newItems[existingItemIndex],
@@ -153,7 +161,6 @@ const App: React.FC = () => {
         };
         return newItems;
       } else {
-        // Nếu chưa có -> Thêm mới
         const newItem: ConfiguredItem = {
           instanceId: new Date().getTime().toString() + Math.random().toString(36).substr(2, 9),
           packageId: selectedPackage.id,
@@ -205,20 +212,27 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
+  // --- TÍNH TỔNG CỘNG TOÀN BỘ (CẬP NHẬT LOGIC LÀM TRÒN) ---
   const overallMetrics = useMemo(() => {
     return quoteItems.reduce((acc, item) => {
+      // Tính lại logic y hệt như trên cho từng item
       const itemTotalRaw = item.unitPrice * item.quantity;
-      const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
+      const itemDiscountRaw = itemTotalRaw * (item.discountRate / 100);
+      const itemTaxableRaw = itemTotalRaw - itemDiscountRaw;
+      const itemVatRaw = itemTaxableRaw * 0.1;
       
-      const itemTaxable = itemTotalRaw - itemDiscount;
-      const itemVat = Math.round(itemTaxable * 0.1);
-      const itemFinal = itemTaxable + itemVat;
+      // Tổng tiền item làm tròn đến hàng nghìn
+      const itemFinal = roundToThousand(itemTaxableRaw + itemVatRaw);
+      
+      // Tính các thành phần con
+      const itemVat = Math.round(itemVatRaw);
+      const itemDiscount = Math.round(itemDiscountRaw);
 
       return {
         subTotal: acc.subTotal + itemTotalRaw,
         discountAmount: acc.discountAmount + itemDiscount,
         vatAmount: acc.vatAmount + itemVat,
-        finalTotal: acc.finalTotal + itemFinal
+        finalTotal: acc.finalTotal + itemFinal // Cộng dồn các số đã chẵn nghìn
       };
     }, { subTotal: 0, discountAmount: 0, vatAmount: 0, finalTotal: 0 });
   }, [quoteItems]);
@@ -286,7 +300,6 @@ const App: React.FC = () => {
                     )}
                   </div>
                   
-                  {/* Tên gói quà đã sửa style fit width */}
                   <div className="text-[9px] sm:text-[10px] font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded uppercase w-fit max-w-none">
                     {selectedPackage.name}
                   </div>
@@ -535,11 +548,4 @@ const App: React.FC = () => {
         items={quoteItems} 
         subTotal={overallMetrics.subTotal}
         discountAmount={overallMetrics.discountAmount}
-        vatAmount={overallMetrics.vatAmount}
-        finalTotal={overallMetrics.finalTotal} 
-      />
-    </>
-  );
-};
-
-export default App;
+        vatAmount={overallMetrics.vatAmount
