@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useRef } from 'react';
 import { ActiveDraft, ConfiguredItem, GiftPackage, Product } from './types';
 import { GIFT_PACKAGES, PRODUCTS } from './constants';
@@ -55,7 +54,7 @@ const App: React.FC = () => {
     });
   };
 
-  // --- TÍNH TOÁN DRAFT (CẬP NHẬT: THÊM VAT) ---
+  // --- TÍNH TOÁN DRAFT ---
   const draftCalculation = useMemo(() => {
     if (!selectedPackage) return null;
     let unitPrice = 0;
@@ -73,13 +72,13 @@ const App: React.FC = () => {
       });
     });
 
-    const preDiscountTotal = unitPrice * draft.quantity; // Tổng giá gốc
-    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100)); // Tiền giảm
+    const preDiscountTotal = unitPrice * draft.quantity;
+    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100));
     
-    // --- LOGIC MỚI: TÍNH VAT ---
-    const taxableAmount = preDiscountTotal - discountAmount; // Giá sau khi giảm (để tính thuế)
-    const vatAmount = Math.round(taxableAmount * 0.1); // VAT 10%
-    const finalTotal = taxableAmount + vatAmount; // Tổng cộng thanh toán
+    // VAT Logic
+    const taxableAmount = preDiscountTotal - discountAmount;
+    const vatAmount = Math.round(taxableAmount * 0.1);
+    const finalTotal = taxableAmount + vatAmount;
 
     const isComplete = selectedPackage.rules.every(rule => 
       draft.items[rule.category]?.every(id => id !== '')
@@ -91,8 +90,8 @@ const App: React.FC = () => {
       isComplete,
       preDiscountTotal,
       discountAmount,
-      taxableAmount, // Trả về thêm biến này để hiển thị nếu cần
-      vatAmount,     // Trả về thêm biến này
+      taxableAmount,
+      vatAmount,
       finalTotal
     };
   }, [draft, selectedPackage]);
@@ -109,12 +108,11 @@ const App: React.FC = () => {
     setDraft(prev => ({ ...prev, discountRate: val }));
   };
 
+  // --- LOGIC GỘP QUÀ (ĐÃ SỬA) ---
   const saveToQuote = () => {
     if (!selectedPackage || !draftCalculation?.isComplete || draft.quantity < 1) return;
 
-    // Thay crypto.randomUUID() bằng timestamp để an toàn trên mọi trình duyệt
-    const safeId = new Date().getTime().toString() + Math.random().toString(36).substr(2, 5);
-
+    // Trường hợp SỬA: Giữ nguyên logic cũ
     if (editingId) {
       setQuoteItems(prev => prev.map(item => 
         item.instanceId === editingId 
@@ -131,19 +129,44 @@ const App: React.FC = () => {
         : item
       ));
       setEditingId(null);
-    } else {
-      const newItem: ConfiguredItem = {
-        instanceId: new Date().getTime().toString() + Math.random().toString(36).substr(2, 9),
-        packageId: selectedPackage.id,
-        packageName: selectedPackage.name,
-        items: { ...draft.items },
-        quantity: draft.quantity,
-        unitPrice: draftCalculation.unitPrice,
-        details: [...draftCalculation.details],
-        discountRate: draft.discountRate,
-      };
-      setQuoteItems(prev => [...prev, newItem]);
+      setDraft({ packageId: null, items: {}, quantity: 1, discountRate: 0 });
+      return;
     }
+
+    // Trường hợp THÊM MỚI: Kiểm tra trùng lặp
+    const currentItemsSignature = JSON.stringify(draft.items);
+
+    setQuoteItems(prev => {
+      // Tìm xem có phần quà nào giống hệt không (Cùng PackageID, Items, Discount)
+      const existingItemIndex = prev.findIndex(item => 
+        item.packageId === selectedPackage.id && 
+        JSON.stringify(item.items) === currentItemsSignature &&
+        item.discountRate === draft.discountRate
+      );
+
+      if (existingItemIndex !== -1) {
+        // Nếu đã có -> Cộng dồn số lượng
+        const newItems = [...prev];
+        newItems[existingItemIndex] = {
+          ...newItems[existingItemIndex],
+          quantity: newItems[existingItemIndex].quantity + draft.quantity
+        };
+        return newItems;
+      } else {
+        // Nếu chưa có -> Thêm mới
+        const newItem: ConfiguredItem = {
+          instanceId: new Date().getTime().toString() + Math.random().toString(36).substr(2, 9),
+          packageId: selectedPackage.id,
+          packageName: selectedPackage.name,
+          items: { ...draft.items },
+          quantity: draft.quantity,
+          unitPrice: draftCalculation.unitPrice,
+          details: [...draftCalculation.details],
+          discountRate: draft.discountRate,
+        };
+        return [...prev, newItem];
+      }
+    });
 
     setDraft({ packageId: null, items: {}, quantity: 1, discountRate: 0 });
   };
@@ -182,20 +205,19 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
-  // --- TÍNH TỔNG CỘNG TOÀN BỘ (CẬP NHẬT: THÊM VAT) ---
   const overallMetrics = useMemo(() => {
     return quoteItems.reduce((acc, item) => {
       const itemTotalRaw = item.unitPrice * item.quantity;
       const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
       
-      const itemTaxable = itemTotalRaw - itemDiscount; // Giá tính thuế
-      const itemVat = Math.round(itemTaxable * 0.1);   // VAT 10%
-      const itemFinal = itemTaxable + itemVat;         // Giá cuối
+      const itemTaxable = itemTotalRaw - itemDiscount;
+      const itemVat = Math.round(itemTaxable * 0.1);
+      const itemFinal = itemTaxable + itemVat;
 
       return {
         subTotal: acc.subTotal + itemTotalRaw,
         discountAmount: acc.discountAmount + itemDiscount,
-        vatAmount: acc.vatAmount + itemVat, // Cộng dồn VAT
+        vatAmount: acc.vatAmount + itemVat,
         finalTotal: acc.finalTotal + itemFinal
       };
     }, { subTotal: 0, discountAmount: 0, vatAmount: 0, finalTotal: 0 });
@@ -208,7 +230,7 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-3 py-1 sm:px-4 sm:py-1 flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <div className="h-16 sm:h-20 w-auto flex items-center">
-                <img src="https://i.ibb.co/KHtjSTp/logosomogold.png" alt="Somo Gold" className="h-48 w-auto object-contain" />
+                <img src="https://i.ibb.co/MyS3gW1Y/logo.png" alt="Somo Gold" className="h-full w-auto object-contain" />
               </div>
               <div className="h-6 sm:h-8 w-px bg-slate-200"></div>
               <div className="min-w-0">
@@ -263,7 +285,9 @@ const App: React.FC = () => {
                       <span className="bg-indigo-100 text-indigo-700 text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-indigo-200 uppercase">Sửa</span>
                     )}
                   </div>
-                  <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded uppercase truncate max-w-[120px]">
+                  
+                  {/* Tên gói quà đã sửa style fit width */}
+                  <div className="text-[9px] sm:text-[10px] font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded uppercase w-fit max-w-none">
                     {selectedPackage.name}
                   </div>
                 </div>
@@ -347,7 +371,7 @@ const App: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Hàng 2: Bảng tạm tính (CẬP NHẬT GIAO DIỆN VAT) */}
+                        {/* Hàng 2: Bảng tạm tính */}
                         <div className="pt-4 border-t border-slate-200 flex flex-col gap-2 text-sm">
                           <div className="flex justify-between text-slate-500">
                             <span>Đơn giá:</span>
@@ -359,7 +383,6 @@ const App: React.FC = () => {
                             <span>{(draftCalculation?.preDiscountTotal || 0).toLocaleString('vi-VN')}đ</span>
                           </div>
 
-                          {/* Dòng Chiết khấu */}
                           {draft.discountRate > 0 && (
                             <div className="flex justify-between text-green-600 font-medium">
                               <span>Chiết khấu ({draft.discountRate}%):</span>
@@ -367,19 +390,16 @@ const App: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Dòng Giá sau giảm (Tạm tính trước thuế) */}
                           <div className="flex justify-between text-slate-700 font-bold border-t border-dashed border-slate-200 pt-2 mt-1">
                             <span>Tạm tính (Trước VAT):</span>
                             <span>{(draftCalculation?.taxableAmount || 0).toLocaleString('vi-VN')}đ</span>
                           </div>
 
-                          {/* Dòng VAT */}
                           <div className="flex justify-between text-slate-500 italic">
                             <span>VAT (10%):</span>
                             <span>+ {(draftCalculation?.vatAmount || 0).toLocaleString('vi-VN')}đ</span>
                           </div>
 
-                          {/* Dòng Tổng cộng */}
                           <div className="flex justify-between text-red-700 text-lg font-black pt-2 border-t border-slate-200 mt-1">
                             <span>TỔNG CỘNG:</span>
                             <span>{(draftCalculation?.finalTotal || 0).toLocaleString('vi-VN')}đ</span>
@@ -449,8 +469,13 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 py-2 sm:py-3">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4 flex-shrink-0">
-                <div className="h-16 sm:h-20 bg-white p-2 rounded-xl shadow-md">
-                  <img src="https://i.ibb.co/MyS3gW1Y/logo.png" alt="Somo Gold Logo" className="h-full w-auto object-contain" />
+                <div className="flex flex-col items-start justify-center gap-1">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Về chúng tôi
+                  </h3>
+                  <p className="text-xs text-slate-300 font-medium">
+                    Tự hào tinh hoa quà tặng truyền thống Việt
+                  </p>
                 </div>
               </div>
 
