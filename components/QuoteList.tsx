@@ -32,8 +32,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({
   vatAmount 
 }) => {
   return (
-    // REFACTOR LAYOUT: Sử dụng chiều cao full để fit vào container cha sticky
-    // Thay đổi h-[calc(100vh-8rem)] thành h-[80vh] hoặc max-h-[85vh] để đảm bảo hiển thị tốt trên màn hình laptop
     <div className="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-800 flex flex-col h-[80vh] sticky top-24">
       
       <div className="p-6 bg-slate-800 border-b border-slate-700 shrink-0">
@@ -43,9 +41,8 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         </h3>
       </div>
 
-      {/* REFACTOR: flex-grow để phần này chiếm hết khoảng trống, đẩy footer xuống */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/50 flex flex-col">
-        {items.map((item, index) => { // Lấy index để đánh số thứ tự
+        {items.map((item, index) => { 
           const itemTotalRaw = item.unitPrice * item.quantity;
           const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
           const itemTotalFinal = itemTotalRaw - itemDiscount;
@@ -53,7 +50,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
           return (
             <div key={item.instanceId} className="bg-slate-800 rounded-xl p-4 border border-slate-700 group relative hover:border-slate-600 transition-colors flex gap-3">
               
-              {/* YÊU CẦU 2: ĐÁNH SỐ THỨ TỰ */}
+              {/* STT */}
               <div className="shrink-0">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-600 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-500 transition-colors">
                   {index + 1}
@@ -69,13 +66,12 @@ export const QuoteList: React.FC<QuoteListProps> = ({
                 <div className="mb-3">
                   <h4 className="text-red-400 font-bold text-sm leading-tight truncate pr-6">{item.packageName}</h4>
                   <div className="flex justify-between items-start mt-1">
-                      {/* YÊU CẦU 3: TOOLTIP XEM NHANH THÀNH PHẦN */}
+                      {/* Tooltip */}
                       <div className="relative group/tooltip cursor-help inline-block">
                         <p className="text-[10px] text-slate-400 italic underline decoration-slate-600 decoration-dashed underline-offset-2 hover:text-slate-200 transition-colors">
                           {item.details.length} thành phần
                         </p>
                         
-                        {/* Tooltip Content */}
                         <div className="absolute left-0 bottom-full mb-2 w-48 hidden group-hover/tooltip:block z-50">
                           <div className="bg-slate-700 text-slate-200 text-[10px] p-2 rounded-lg shadow-xl border border-slate-600">
                              <p className="font-bold text-slate-400 uppercase text-[9px] mb-1 pb-1 border-b border-slate-600">Chi tiết:</p>
@@ -87,7 +83,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({
                                  </li>
                                ))}
                              </ul>
-                             {/* Mũi tên tooltip */}
                              <div className="absolute -bottom-1 left-4 w-2 h-2 bg-slate-700 rotate-45 border-r border-b border-slate-600"></div>
                           </div>
                         </div>
@@ -133,8 +128,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         )}
       </div>
 
-      {/* Footer Thanh toán */}
-      {items.length > 0 && (
       <div className="p-5 bg-slate-800 border-t border-slate-700 space-y-3 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] z-20 shrink-0">
         
         <div className="flex justify-between items-center text-xs text-slate-400 font-medium">
@@ -149,9 +142,10 @@ export const QuoteList: React.FC<QuoteListProps> = ({
           </div>
         )}
         
+        {/* Logic hiển thị Tạm tính = Tổng (chẵn) - VAT (lẻ) để đảm bảo khớp số liệu */}
         <div className="flex justify-between items-center text-xs text-slate-300 font-bold border-t border-slate-700/50 pt-2">
           <span>Tạm tính (Trước VAT):</span>
-          <span>{(subTotal - discountAmount).toLocaleString('vi-VN')}đ</span>
+          <span>{(finalTotal - vatAmount).toLocaleString('vi-VN')}đ</span>
         </div>
         
         <div className="flex justify-between items-center text-xs text-slate-400">
@@ -174,7 +168,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({
           Xuất Báo Giá (PDF)
         </button>
       </div>
-      )}
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
