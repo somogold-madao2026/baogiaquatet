@@ -58,17 +58,21 @@ const App: React.FC = () => {
   // --- HÀM BỔ TRỢ: LÀM TRÒN ĐẾN HÀNG NGHÌN ---
   const roundToThousand = (num: number) => Math.round(num / 1000) * 1000;
 
-  // --- TÍNH TOÁN DRAFT (CẬP NHẬT LOGIC LÀM TRÒN) ---
+  // --- TÍNH TOÁN DRAFT (LOGIC MỚI: DÙNG ORIGINAL PRICE) ---
   const draftCalculation = useMemo(() => {
     if (!selectedPackage) return null;
-    let unitPrice = 0;
+    let unitPrice = 0; // Giá hiển thị (đã chia 1.1)
+    let totalOriginalPrice = 0; // GIÁ GỐC ĐỂ TÍNH TOÁN (chẵn)
+
     const details: { product: Product; quantity: number }[] = [];
 
     (Object.entries(draft.items) as [string, string[]][]).forEach(([cat, ids]) => {
       ids.forEach(id => {
         const product = PRODUCTS.find(p => p.id === id);
         if (product) {
-          unitPrice += product.price;
+          unitPrice += product.price; // Cộng dồn giá hiển thị
+          totalOriginalPrice += product.originalPrice; // Cộng dồn giá gốc
+          
           const existing = details.find(d => d.product.id === product.id);
           if (existing) existing.quantity += 1;
           else details.push({ product, quantity: 1 });
@@ -76,21 +80,21 @@ const App: React.FC = () => {
       });
     });
 
-    // 1. Tính toán giá trị GỐC (Raw) - Không làm tròn sớm
-    const preDiscountTotal = unitPrice * draft.quantity;
-    const discountAmountRaw = preDiscountTotal * (draft.discountRate / 100);
-    const taxableAmountRaw = preDiscountTotal - discountAmountRaw;
-    const vatAmountRaw = taxableAmountRaw * 0.1;
+    // 1. Tính tổng dựa trên GIÁ GỐC (đảm bảo số chẵn)
+    const preDiscountTotal = totalOriginalPrice * draft.quantity;
+    
+    // 2. Tính giảm giá trên tổng giá gốc
+    const discountAmount = Math.round(preDiscountTotal * (draft.discountRate / 100));
+    
+    // 3. Tổng cộng thanh toán (Đảm bảo làm tròn hàng nghìn)
+    const finalTotalRaw = preDiscountTotal - discountAmount;
+    const finalTotal = roundToThousand(finalTotalRaw);
 
-    // 2. Tính Tổng cuối cùng và LÀM TRÒN ĐẾN HÀNG NGHÌN
-    const totalRaw = taxableAmountRaw + vatAmountRaw;
-    const finalTotal = roundToThousand(totalRaw);
-
-    // 3. Tính ngược lại các thành phần hiển thị
-    // (VAT làm tròn chuẩn, Tạm tính = Tổng - VAT để khớp số liệu hiển thị)
-    const vatAmount = Math.round(vatAmountRaw);
-    const taxableAmount = finalTotal - vatAmount; // Điều chỉnh Tạm tính theo Tổng đã làm tròn
-    const discountAmount = Math.round(discountAmountRaw);
+    // 4. Tính ngược lại Tạm tính và VAT để hiển thị
+    // Tạm tính = Tổng / 1.1
+    const taxableAmount = Math.round(finalTotal / 1.1);
+    // VAT = Tổng - Tạm tính
+    const vatAmount = finalTotal - taxableAmount;
 
     const isComplete = selectedPackage.rules.every(rule => 
       draft.items[rule.category]?.every(id => id !== '')
@@ -100,9 +104,9 @@ const App: React.FC = () => {
       unitPrice, 
       details, 
       isComplete,
-      preDiscountTotal,
+      preDiscountTotal, // Đây là tổng giá gốc (chẵn)
       discountAmount,
-      taxableAmount, // Giá trị này đã được điều chỉnh để cộng với VAT ra chẵn FinalTotal
+      taxableAmount, 
       vatAmount,
       finalTotal
     };
@@ -120,7 +124,6 @@ const App: React.FC = () => {
     setDraft(prev => ({ ...prev, discountRate: val }));
   };
 
-  // --- LOGIC GỘP QUÀ ---
   const saveToQuote = () => {
     if (!selectedPackage || !draftCalculation?.isComplete || draft.quantity < 1) return;
 
@@ -167,7 +170,7 @@ const App: React.FC = () => {
           packageName: selectedPackage.name,
           items: { ...draft.items },
           quantity: draft.quantity,
-          unitPrice: draftCalculation.unitPrice,
+          unitPrice: draftCalculation.unitPrice, // Lưu giá hiển thị
           details: [...draftCalculation.details],
           discountRate: draft.discountRate,
         };
@@ -212,27 +215,32 @@ const App: React.FC = () => {
     setShowPdfPreview(true);
   };
 
-  // --- TÍNH TỔNG CỘNG TOÀN BỘ (CẬP NHẬT LOGIC LÀM TRÒN) ---
+  // --- TÍNH TỔNG CỘNG TOÀN BỘ (DÙNG LOGIC ORIGINAL PRICE) ---
   const overallMetrics = useMemo(() => {
     return quoteItems.reduce((acc, item) => {
-      // Tính lại logic y hệt như trên cho từng item
-      const itemTotalRaw = item.unitPrice * item.quantity;
-      const itemDiscountRaw = itemTotalRaw * (item.discountRate / 100);
-      const itemTaxableRaw = itemTotalRaw - itemDiscountRaw;
-      const itemVatRaw = itemTaxableRaw * 0.1;
+      // 1. Tính tổng giá gốc của item này (Phải tính lại từ details để lấy originalPrice)
+      const itemTotalOriginal = item.details.reduce((sum, d) => sum + (d.product.originalPrice * d.quantity), 0) * item.quantity;
       
-      // Tổng tiền item làm tròn đến hàng nghìn
-      const itemFinal = roundToThousand(itemTaxableRaw + itemVatRaw);
+      // 2. Tính giảm giá
+      const itemDiscount = Math.round(itemTotalOriginal * (item.discountRate / 100));
       
-      // Tính các thành phần con
-      const itemVat = Math.round(itemVatRaw);
-      const itemDiscount = Math.round(itemDiscountRaw);
+      // 3. Tính Final
+      const itemFinalRaw = itemTotalOriginal - itemDiscount;
+      const itemFinal = roundToThousand(itemFinalRaw);
+
+      // 4. Tính ngược Tax/VAT
+      const itemTaxable = Math.round(itemFinal / 1.1);
+      const itemVat = itemFinal - itemTaxable;
+
+      // Lưu ý: subTotal hiển thị vẫn là giá chưa thuế (để khớp với logic hiển thị)
+      // Nhưng tính toán tổng thanh toán thì dùng logic trên
+      const itemDisplaySubTotal = item.unitPrice * item.quantity;
 
       return {
-        subTotal: acc.subTotal + itemTotalRaw,
+        subTotal: acc.subTotal + itemDisplaySubTotal, // Cộng dồn giá hiển thị
         discountAmount: acc.discountAmount + itemDiscount,
         vatAmount: acc.vatAmount + itemVat,
-        finalTotal: acc.finalTotal + itemFinal // Cộng dồn các số đã chẵn nghìn
+        finalTotal: acc.finalTotal + itemFinal
       };
     }, { subTotal: 0, discountAmount: 0, vatAmount: 0, finalTotal: 0 });
   }, [quoteItems]);
@@ -548,4 +556,11 @@ const App: React.FC = () => {
         items={quoteItems} 
         subTotal={overallMetrics.subTotal}
         discountAmount={overallMetrics.discountAmount}
-        vatAmount={overallMetrics.vatAmount
+        vatAmount={overallMetrics.vatAmount}
+        finalTotal={overallMetrics.finalTotal} 
+      />
+    </>
+  );
+};
+
+export default App;
