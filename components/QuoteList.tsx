@@ -43,14 +43,19 @@ export const QuoteList: React.FC<QuoteListProps> = ({
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/50 flex flex-col">
         {items.map((item, index) => { 
-          const itemTotalRaw = item.unitPrice * item.quantity;
-          const itemDiscount = Math.round(itemTotalRaw * (item.discountRate / 100));
-          const itemTotalFinal = itemTotalRaw - itemDiscount;
+          // LOGIC: Tính theo giá gốc originalPrice để khớp với tổng
+          const itemTotalOriginal = item.details.reduce((sum, d) => sum + (d.product.originalPrice * d.quantity), 0) * item.quantity;
+          const itemDiscount = Math.round(itemTotalOriginal * (item.discountRate / 100));
+          
+          // Làm tròn tổng cuối
+          const itemFinal = Math.round((itemTotalOriginal - itemDiscount) / 1000) * 1000;
+          
+          // Giá hiển thị đơn giá (vẫn là giá lẻ chưa thuế)
+          const itemUnitPriceDisplay = item.unitPrice * item.quantity;
 
           return (
             <div key={item.instanceId} className="bg-slate-800 rounded-xl p-4 border border-slate-700 group relative hover:border-slate-600 transition-colors flex gap-3">
               
-              {/* STT */}
               <div className="shrink-0">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-600 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-500 transition-colors">
                   {index + 1}
@@ -66,7 +71,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({
                 <div className="mb-3">
                   <h4 className="text-red-400 font-bold text-sm leading-tight truncate pr-6">{item.packageName}</h4>
                   <div className="flex justify-between items-start mt-1">
-                      {/* Tooltip */}
                       <div className="relative group/tooltip cursor-help inline-block">
                         <p className="text-[10px] text-slate-400 italic underline decoration-slate-600 decoration-dashed underline-offset-2 hover:text-slate-200 transition-colors">
                           {item.details.length} thành phần
@@ -109,10 +113,10 @@ export const QuoteList: React.FC<QuoteListProps> = ({
                     <p className="text-[10px] text-slate-500 uppercase font-medium">Thành tiền</p>
                     {item.discountRate > 0 && (
                       <p className="text-xs text-slate-500 line-through decoration-slate-500/50 leading-none mb-0.5">
-                        {itemTotalRaw.toLocaleString('vi-VN')}đ
+                        {itemUnitPriceDisplay.toLocaleString('vi-VN')}đ
                       </p>
                     )}
-                    <p className="text-base font-black text-white leading-none">{itemTotalFinal.toLocaleString('vi-VN')}đ</p>
+                    <p className="text-base font-black text-white leading-none">{itemFinal.toLocaleString('vi-VN')}đ</p>
                   </div>
                 </div>
               </div>
@@ -142,7 +146,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({
           </div>
         )}
         
-        {/* Logic hiển thị Tạm tính = Tổng (chẵn) - VAT (lẻ) để đảm bảo khớp số liệu */}
         <div className="flex justify-between items-center text-xs text-slate-300 font-bold border-t border-slate-700/50 pt-2">
           <span>Tạm tính (Trước VAT):</span>
           <span>{(finalTotal - vatAmount).toLocaleString('vi-VN')}đ</span>
