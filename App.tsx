@@ -494,8 +494,8 @@ const App: React.FC = () => {
                   <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                     Về chúng tôi
                   </h3>
-                  <p className="text-xs text-slate-300 font-medium">
-                    Tự hào tinh hoa quà tặng truyền thống Việt
+                  <p className="text-xs text-yellow-500 font-medium">
+                    Tự Hào Tinh Hoa Quà Tặng Truyền Thống Việt
                   </p>
                 </div>
               </div>
